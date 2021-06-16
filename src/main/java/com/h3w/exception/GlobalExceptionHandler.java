@@ -11,12 +11,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
+
 /**
- *
- * @Title: GlobalExceptionHandler
- * @Description: 全局异常处理
-如果使用@RestControllerAdvice 注解
-则会将返回的数据类型转换成JSON格式
+ * 全局异常处理
+ * 如果使用@RestControllerAdvice 注解
+ * 则会将返回的数据类型转换成JSON格式
+ * @author hyyds
+ * @date 2021/6/16
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {

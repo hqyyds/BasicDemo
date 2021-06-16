@@ -8,9 +8,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 创建人：fantasy <br>
- * 创建时间：2013-8-27 <br>
- * 功能描述： 处理数字的Util、计算百分比<br>
+ * 处理数字的Util、计算百分比
+ * @author hyyds
+ * @date 2021/6/16
  */
 public class NumUtil {
     /**

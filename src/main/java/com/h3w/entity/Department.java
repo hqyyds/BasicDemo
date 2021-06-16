@@ -4,9 +4,6 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * Created by hyyd on 2017/10/23.
- */
 @Entity
 @Table(name = "sys_department",catalog = "")
 public class Department implements Serializable {

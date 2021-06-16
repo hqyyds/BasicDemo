@@ -17,6 +17,8 @@ import java.io.IOException;
 
 /**
  * 自定义的权限验证过滤器
+ * @author hyyds
+ * @date 2021/6/16
  */
 @Component
 public class CustomFilterSecurityInterceptor extends AbstractSecurityInterceptor implements Filter {

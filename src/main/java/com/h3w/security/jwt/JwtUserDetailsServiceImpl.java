@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
 
 /**
  * 自定义的UserDetailesService接口，获取认证数据源，只需要将用户信息（用户名，密码，权限列表）包装成UserDetailes
+ * @author hyyds
+ * @date 2021/6/16
  */
 @Service
 public class JwtUserDetailsServiceImpl implements UserDetailsService {

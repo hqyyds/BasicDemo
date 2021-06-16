@@ -19,6 +19,8 @@ import java.util.List;
 
 /**
  * 自定义的资源（url）权限（角色）数据获取类
+ * @author hyyds
+ * @date 2021/6/16
  */
 @Component
 public class CustomFilterInvocationSecurityMetadataSource implements FilterInvocationSecurityMetadataSource {

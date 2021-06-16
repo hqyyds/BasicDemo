@@ -9,9 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/**
- * Created by hyyd on 2017/6/30.
- */
 @Service
 @Transactional
 public class FileuploadServiceImpl implements FileuploadService {

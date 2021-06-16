@@ -13,6 +13,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * redisTemplate封装
+ * @author hyyds
+ * @date 2021/6/16
  */
 @Component //当注解作用在类上时，表明这些类是交给spring容器进行管理的，而当使用@Autowired和@Resource时，表明我需要某个属性、方法或字段，但是并不需要我自己去new一个
 public class RedisUtil {

@@ -26,6 +26,11 @@ import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.util.Date;
 
+/**
+ * 日志AOP
+ * @author hyyds
+ * @date 2021/6/16
+ */
 @Component
 @Aspect
 public class LogAop {

@@ -13,8 +13,8 @@ import java.io.PrintWriter;
 
 /**
  * 防止XSS 攻击和SQL注入攻击的Filter
- * @ClassName:  XssAndSqlFilter
- * @Description:TODO(这里用一句话描述这个类的作用)
+ * @author hyyds
+ * @date 2021/6/16
  */
 public class XssAndSqlFilter implements Filter {
 

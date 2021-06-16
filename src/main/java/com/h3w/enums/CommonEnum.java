@@ -4,6 +4,8 @@ import com.h3w.exception.BaseErrorInfoInterface;
 
 /**
  * 公用描述枚举类
+ * @author hyyds
+ * @date 2021/6/16
  */
 public enum CommonEnum implements BaseErrorInfoInterface {
     // 数据操作错误定义

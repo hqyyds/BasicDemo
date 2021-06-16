@@ -12,6 +12,8 @@ import java.util.Iterator;
 
 /**
  * 自定义的权限控制管理器
+ * @author hyyds
+ * @date 2021/6/16
  */
 @Component
 public class CustomAccessDecisionManager implements AccessDecisionManager {

@@ -22,6 +22,11 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 重复提交AOP
+ * @author hyyds
+ * @date 2021/6/16
+ */
 @Aspect
 @Component
 public class RepeatSubmitAspect {

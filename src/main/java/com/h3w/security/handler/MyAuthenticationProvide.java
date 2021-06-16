@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * 自定义的authenticationProvider认证逻辑
+ * @author hyyds
+ * @date 2021/6/16
  */
 @Component
 public class MyAuthenticationProvide implements AuthenticationProvider {

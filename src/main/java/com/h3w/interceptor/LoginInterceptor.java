@@ -23,6 +23,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+/**
+ * 登录拦截
+ * @author hyyds
+ * @date 2021/6/16
+ */
 @Component
 public class LoginInterceptor implements HandlerInterceptor {
     Logger log = LoggerFactory.getLogger(LoginInterceptor.class);

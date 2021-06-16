@@ -4,9 +4,6 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * Created by hyyd on 2017/10/23.
- */
 @Entity
 @Table(name = "doc_fileupload", catalog = "")
 public class Fileupload implements Serializable {

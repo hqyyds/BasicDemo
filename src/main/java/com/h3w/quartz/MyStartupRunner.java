@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * 项目启动时执行定时任务
+ * @author hyyds
+ * @date 2021/6/16
  */
 @Component
 public class MyStartupRunner implements CommandLineRunner {

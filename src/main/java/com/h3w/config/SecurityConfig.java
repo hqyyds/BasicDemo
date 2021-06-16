@@ -28,7 +28,8 @@ import org.springframework.web.filter.CorsFilter;
  * prePostEnabled：使用表达式实现方法级别的控制，如：@PreAuthorize("hasRole('ADMIN')")
  * securedEnabled: 开启 @Secured 注解过滤权限，如：@Secured("ROLE_ADMIN")
  * jsr250Enabled: 开启 @RolesAllowed 注解过滤权限，如：@RolesAllowed("ROLE_ADMIN")
- *
+ * @author hyyds
+ * @date 2021/6/16
  */
 @Configuration
 @EnableWebSecurity

@@ -2,6 +2,8 @@ package com.h3w.exception;
 
 /**
  * 自定义业务异常类
+ * @author hyyds
+ * @date 2021/6/16
  */
 public class CustomException extends RuntimeException {
 

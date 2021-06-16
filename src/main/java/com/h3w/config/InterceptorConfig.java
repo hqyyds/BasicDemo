@@ -7,6 +7,11 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistration
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * 拦截器配置
+ * @author hyyds
+ * @date 2021/6/16
+ */
 @Configuration
 public class InterceptorConfig implements WebMvcConfigurer {
     @Bean  //创建一个拦截器 返回值是拦截器类型

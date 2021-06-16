@@ -9,6 +9,11 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ *
+ * @author hyyds
+ * @date 2021/6/16
+ */
 public abstract interface IBaseDao<T, ID extends Serializable> {
 	
 	public abstract Session getSession();

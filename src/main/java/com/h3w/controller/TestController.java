@@ -9,6 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ *
+ * @author hyyds
+ * @date 2021/6/16
+ */
 @RestController
 @RequestMapping("/user")
 //说明接口文件

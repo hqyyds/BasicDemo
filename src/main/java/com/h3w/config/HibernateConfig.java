@@ -16,6 +16,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 import java.util.Properties;
 
+/**
+ * Hibernate配置
+ * @author hyyds
+ * @date 2021/6/16
+ */
 @Configuration
 @EnableTransactionManagement
 //@ComponentScan({ "com.bootplus" })

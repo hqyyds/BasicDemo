@@ -13,6 +13,11 @@ import java.io.InputStreamReader;
 import java.util.*;
 import java.util.regex.Pattern;
 
+/**
+ * 防止XSS攻击和SQL注入包装类
+ * @author hyyds
+ * @date 2021/6/16
+ */
 public class XssAndSqlHttpServletRequestWrapper extends HttpServletRequestWrapper {
 
     HttpServletRequest orgRequest = null;

@@ -7,6 +7,8 @@ import org.json.JSONObject;
 
 /**
  * 数据返回结果类
+ * @author hyyds
+ * @date 2021/6/16
  */
 public class ResultObject {
 

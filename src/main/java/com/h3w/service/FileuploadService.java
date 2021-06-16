@@ -4,9 +4,6 @@ import com.h3w.entity.Fileupload;
 
 import java.util.List;
 
-/**
- * Created by hyyd on 2017/6/30.
- */
 public interface FileuploadService {
     public Fileupload getById(Integer id);
 
