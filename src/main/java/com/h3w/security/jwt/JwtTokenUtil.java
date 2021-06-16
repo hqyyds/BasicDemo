@@ -14,8 +14,6 @@ import java.util.Map;
 
 /**
  * 生成令牌，验证等等一些操作
- * @author K. L. Mao
- * @create 2019/1/10
  */
 @ConfigurationProperties(prefix = "jwt")
 @Component

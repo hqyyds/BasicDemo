@@ -9,11 +9,7 @@ import com.jacob.com.Variant;
 import java.io.File;
 
 /**
- *
  * 将jacob.dll放入JDK的bin目录下 把jacob.jar放入项目的buildPath中（web项目放到WEB-INF\lib目录下）
- *
- * @author 单红宇
- *
  */
 public class ConvertToPdf {
 

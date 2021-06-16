@@ -20,11 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-/**
- * 过滤器
- * @author K. L. Mao
- * @create 2019/1/11
- */
 @Component
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 

@@ -4,11 +4,6 @@ package com.h3w.utils;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author <a href="mailto:xietianjiao@h3w.com.cn">xietj</a>
- * @version 1.0
- * 2016-10-24 下午3:10:20
- */
 public class FilenameUtil {
 
 	public static final int FILE_TYPE_OFFICE=0;

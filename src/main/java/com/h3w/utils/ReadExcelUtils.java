@@ -19,11 +19,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;  
-/**
- * @author <a href="mailto:xietianjiao@h3w.com.cn">xietj</a>
- * @version 1.0
- * 2017年6月30日 下午1:32:19
- */
+
 public class ReadExcelUtils {
     private Logger logger = LoggerFactory.getLogger(ReadExcelUtils.class);  
     private Workbook wb;  

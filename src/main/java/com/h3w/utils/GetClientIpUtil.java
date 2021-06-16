@@ -5,11 +5,6 @@ import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
 
-/**
- * @author <a href="mailto:xietianjiao@h3w.com.cn">xietj</a>
- * @version 1.0
- * 2014-6-26 下午3:46:44
- */
 public class GetClientIpUtil {
 
 	public static String getRemoteIpAddr(HttpServletRequest request) {

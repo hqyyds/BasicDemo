@@ -9,11 +9,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * @author <a href="mailto:xietianjiao@h3w.com.cn">xietj</a>
- * @version 1.0
- * 2016-5-16 下午2:26:12
- */
 public abstract interface IBaseDao<T, ID extends Serializable> {
 	
 	public abstract Session getSession();

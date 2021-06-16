@@ -18,7 +18,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 /**
  * 任务调度处理
- * @author yvan
  *
  */
 @Configuration

@@ -7,10 +7,6 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 
 
-/**
- * @author tfq
- * @datetime 2011-10-13
- */
 public class MD5Util {
 	private static final String HEX_NUMS_STR="0123456789abcdef";
 	private static final Integer SALT_LENGTH = 0;//12;

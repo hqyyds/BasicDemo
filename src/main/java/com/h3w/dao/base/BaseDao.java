@@ -19,11 +19,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-/**
- * @author <a href="mailto:xietianjiao@h3w.com.cn">xietj</a>
- * @version 1.0
- * 2016-5-16 上午10:23:24
- */
 public abstract class BaseDao<T, ID extends Serializable> implements IBaseDao<T, ID> {
     @Autowired //hibernate4需引入SessionFactory.....
     private SessionFactory sessionFactory;

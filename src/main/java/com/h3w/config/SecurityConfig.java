@@ -29,8 +29,6 @@ import org.springframework.web.filter.CorsFilter;
  * securedEnabled: 开启 @Secured 注解过滤权限，如：@Secured("ROLE_ADMIN")
  * jsr250Enabled: 开启 @RolesAllowed 注解过滤权限，如：@RolesAllowed("ROLE_ADMIN")
  *
- * @author K. L. Mao
- * @create 2019/1/11
  */
 @Configuration
 @EnableWebSecurity

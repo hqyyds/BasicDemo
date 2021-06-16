@@ -14,8 +14,6 @@ import java.io.PrintWriter;
 
 /**
  * 权限校验处理器
- * @author K. L. Mao
- * @create 2019/1/11
  */
 @Component
 public class RestAccessDeniedHandler implements AccessDeniedHandler {

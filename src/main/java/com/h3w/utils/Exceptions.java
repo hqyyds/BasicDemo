@@ -5,7 +5,6 @@ import java.io.StringWriter;
 
 /**
  * 关于异常的工具类.
- * 
  */
 public class Exceptions {
 

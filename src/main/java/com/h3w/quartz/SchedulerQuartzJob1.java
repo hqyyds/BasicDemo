@@ -5,7 +5,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 /**
  * 实现Job接口
- * @author yvan
  *
  */
 public class SchedulerQuartzJob1 implements Job{

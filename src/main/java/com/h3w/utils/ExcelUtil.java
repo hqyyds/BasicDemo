@@ -4,10 +4,6 @@ import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.RegionUtil;
 
-/**
- * @author <a href="mailto:xietianjiao@h3w.com.cn">xietj</a>
- * @version 1.0 2017年8月9日 下午1:36:23
- */
 public class ExcelUtil {
 	private HSSFWorkbook wb=null;
 	private HSSFSheet sheet=null;

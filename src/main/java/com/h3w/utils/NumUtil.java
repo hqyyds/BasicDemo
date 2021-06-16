@@ -1,8 +1,5 @@
 package com.h3w.utils;
 
-/**
- * Created by 60292 on 2018/4/19.
- */
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;

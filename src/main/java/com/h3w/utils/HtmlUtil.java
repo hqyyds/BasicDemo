@@ -6,10 +6,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-/**
- * @author <a href="mailto:xietianjiao@h3w.com.cn">xietj</a>
- * @version 1.0 2015-8-13 上午10:54:37
- */
 public class HtmlUtil {
 	/**
 	 * 从html中取纯文本

@@ -8,10 +8,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.Collection;
 
-/**
- * @author <a href="mailto:xietianjiao@h3w.com.cn">xietj</a>
- * @version 1.0
- */
 public class JSONUtil {
 	/**
      * @param jsonStr

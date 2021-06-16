@@ -2,9 +2,6 @@ package com.h3w.utils;
 
 import java.util.Scanner;
 
-/**
- * Created by 60292 on 2018/2/2.
- */
 public class MarkUtil {
 
     public static String convert(int number) {

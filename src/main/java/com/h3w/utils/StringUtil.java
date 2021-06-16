@@ -6,11 +6,6 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * @author <a href="mailto:xietianjiao@h3w.com.cn">xietj</a>
- * @version 1.0
- * 2016-5-13 下午1:55:12
- */
 public class StringUtil {
 
 	public static boolean isBlank(String str){

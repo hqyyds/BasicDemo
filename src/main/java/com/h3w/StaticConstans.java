@@ -5,12 +5,6 @@ import com.h3w.utils.AESUtil;
 
 import java.util.ResourceBundle;
 
-/**
- * ϵͳ����
- * @author <a href="mailto:xietianjiao@h3w.com.cn">xietj</a>
- * @version 1.0
- * 2016-5-13 ����1:24:39
- */
 public class StaticConstans {
 	public static ResourceBundle bundle = null;
 

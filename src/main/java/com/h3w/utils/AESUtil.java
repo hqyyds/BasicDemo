@@ -6,11 +6,6 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-/**
- * @author <a href="mailto:xietianjiao@h3w.com.cn">xietj</a>
- * @version 1.0
- * 2018年1月4日 上午11:01:00
- */
 public class AESUtil {
 	/**
 	 * @author miracle.qu

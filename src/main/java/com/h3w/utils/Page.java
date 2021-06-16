@@ -16,13 +16,6 @@ package com.h3w.utils;
 import java.util.List;
 
 
-/** 
- * 	
- * @author 	<a href="mailto:ketayao@gmail.com">ketayao</a>
- * Version  1.1.0
- * @since   2012-6-11 上午10:28:30 
- */
-
 public class Page<T> {
 	public final static String ORDER_DIRECTION_ASC = "ASC"; 
 	public final static String ORDER_DIRECTION_DESC = "DESC";

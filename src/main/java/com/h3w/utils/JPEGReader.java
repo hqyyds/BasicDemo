@@ -24,11 +24,6 @@ import org.apache.sanselan.common.byteSources.ByteSourceFile;
 import org.apache.sanselan.formats.jpeg.JpegImageParser;
 import org.apache.sanselan.formats.jpeg.segments.UnknownSegment;
 
-/**
- * @author <a href="mailto:xietianjiao@h3w.com.cn">xietj</a>
- * @version 1.0
- * 2015-4-23 下午2:18:30
- */
 public class JPEGReader {
 	  public static final int COLOR_TYPE_RGB = 1;
 	    public static final int COLOR_TYPE_CMYK = 2;
