@@ -1,12 +1,14 @@
 package com.h3w.entity;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 @Entity
 @Table(name = "ass_dictionary", catalog = "")
-public class Dictionary {
+public class Dictionary implements Serializable {
 
+    private static final long serialVersionUID = -691859058775986001L;
     public static Integer TYPE_TYPE = 1;//字典分类
     public static Integer TYPE_DATA = 2;//字典数据
     public static String TYPE_USER = "user_type";

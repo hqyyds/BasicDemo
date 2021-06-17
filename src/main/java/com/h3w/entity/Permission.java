@@ -6,25 +6,26 @@ import java.util.List;
 
 @Table(name = "doc_permission")
 @Entity
-public class Permission implements Serializable {
+public class Permission implements Serializable,Comparable<Permission> {
 
-    public static final int TYPE_MENU=1;
-    private static final long serialVersionUID = -3208533504812880919L;
-
-    @Id
+    public static final int TYPE_1=1;
+    public static final int TYPE_2=2;
+    public static final int TYPE_3=3;
+    private static final long serialVersionUID = -1221256213813968794L;
     private String code;
     private Integer type;
     private String url;
+    private String icon;
     private String parentcode;
     private String name;
-    private String description;
-    private String fun;
+    private String pname;
     private Integer seq;
-    private Integer status;
-    private String per;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "permission", orphanRemoval = true, fetch = FetchType.EAGER)
     private List<RolePermission> rolePermissions;
 
+    private List<Permission> children;
+
+    @Id
+    @Column(name = "code", nullable = false, length = 20)
     public String getCode() {
         return code;
     }
@@ -33,6 +34,8 @@ public class Permission implements Serializable {
         this.code = code;
     }
 
+    @Basic
+    @Column(name = "type", nullable = true)
     public Integer getType() {
         return type;
     }
@@ -41,6 +44,8 @@ public class Permission implements Serializable {
         this.type = type;
     }
 
+    @Basic
+    @Column(name = "url", nullable = true, length = 100)
     public String getUrl() {
         return url;
     }
@@ -49,6 +54,8 @@ public class Permission implements Serializable {
         this.url = url;
     }
 
+    @Basic
+    @Column(name = "parentcode", nullable = true, length = 20)
     public String getParentcode() {
         return parentcode;
     }
@@ -57,6 +64,8 @@ public class Permission implements Serializable {
         this.parentcode = parentcode;
     }
 
+    @Basic
+    @Column(name = "name", nullable = true, length = 50)
     public String getName() {
         return name;
     }
@@ -65,6 +74,8 @@ public class Permission implements Serializable {
         this.name = name;
     }
 
+    @Basic
+    @Column(name = "seq", nullable = true)
     public Integer getSeq() {
         return seq;
     }
@@ -73,14 +84,17 @@ public class Permission implements Serializable {
         this.seq = seq;
     }
 
-    public String getFun() {
-        return fun;
+
+    @Transient
+    public List<Permission> getChildren() {
+        return children;
     }
 
-    public void setFun(String fun) {
-        this.fun = fun;
+    public void setChildren(List<Permission> children) {
+        this.children = children;
     }
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "permission", orphanRemoval = true, fetch = FetchType.EAGER)
     public List<RolePermission> getRolePermissions() {
         return rolePermissions;
     }
@@ -89,19 +103,32 @@ public class Permission implements Serializable {
         this.rolePermissions = rolePermissions;
     }
 
-    public String getDescription() {
-        return description;
+    public String getIcon() {
+        return icon;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 
-    public String getPer() {
-        return per;
+    @Override
+    public int compareTo(Permission o) { //重写Comparable接口的compareTo方法，
+        return this.seq - o.getSeq();// 根据 升序排列，降序修改相减顺序即可
     }
 
-    public void setPer(String per) {
-        this.per = per;
+    public String getPname() {
+        return pname;
+    }
+
+    public void setPname(String pname) {
+        this.pname = pname;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Permission that = (Permission) o;
+        return code.equals(that.code);
     }
 }

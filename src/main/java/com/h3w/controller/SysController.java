@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- *
+ * 系统管理
  * @author hyyds
  * @date 2021/6/16
  */
@@ -135,7 +135,6 @@ public class SysController {
             }
             user.setPassword(DigestUtils.md5Hex(psd));
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-            user.setPasswordn(encoder.encode(psd));
             List<UserRole> userRoles = new ArrayList<>();
             if(rcodes.length>0){
                 for(int i=0;i<rcodes.length;i++){
@@ -241,7 +240,6 @@ public class SysController {
         if(StringUtil.isNotBlank(us.getPassword())){
             nuser.setPassword(DigestUtils.md5Hex(us.getPassword()));
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-            nuser.setPasswordn(encoder.encode(us.getPassword()));
         }
     }
 
@@ -305,7 +303,6 @@ public class SysController {
                 if(user!=null){
                     user.setPassword(DigestUtils.md5Hex(StaticConstans.PASSWORD_INIT));
                     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-                    user.setPasswordn(encoder.encode(StaticConstans.PASSWORD_INIT));
                     userService.updateSelect(user);
                 }
             }
@@ -628,7 +625,7 @@ public class SysController {
             idlist.add(id.toString());
         }
 
-        List<Permission> permissions = sysService.getPermissionList(Permission.TYPE_MENU);
+        List<Permission> permissions = sysService.getPermissionList(Permission.TYPE_1);
 
         for(Permission p: permissions){
             //obj菜单权限，pers按钮/功能权限
@@ -636,7 +633,6 @@ public class SysController {
             JSONObject obj = new JSONObject();
             obj.put("code",p.getCode());
             obj.put("name",p.getName());
-            obj.put("per",p.getPer());
             Integer status = 1;
             if(!idlist.contains(p.getCode())){
                 status = 0;
@@ -657,7 +653,6 @@ public class SysController {
             JSONObject obj = new JSONObject();
             obj.put("code",p.getCode());
             obj.put("name",p.getName());
-            obj.put("per",p.getPer());
             Integer status = 1;
             if(!idlist.contains(p.getCode())){
                 status = 0;
@@ -680,18 +675,16 @@ public class SysController {
     @ResponseBody
     @RequestMapping("/permission/headnav")
     public String headnav() throws IOException, JSONException {
-        List<Permission> resourceList = sysService.getPermissionList(Permission.TYPE_MENU);
+        List<Permission> resourceList = sysService.getPermissionList(Permission.TYPE_1);
         JSONArray array = new JSONArray();
         for(Permission p: resourceList){
             JSONObject obj = new JSONObject();
             obj.put("code",p.getCode());
             obj.put("url",p.getUrl());
-            obj.put("description",p.getDescription());
             obj.put("name",p.getName());
             obj.put("parentcode",p.getParentcode());
             obj.put("seq",p.getSeq());
             obj.put("type",p.getType());
-            obj.put("fun",p.getFun());
             array.put(obj);
         }
         return ResultObject.newJSONRows(array).toString();
@@ -707,7 +700,7 @@ public class SysController {
     public String permissionsTree(HttpServletRequest request){
         try{
             JSONArray array = new JSONArray();
-            List<Permission> list = sysService.getPermissionList(Permission.TYPE_MENU);
+            List<Permission> list = sysService.getPermissionList(Permission.TYPE_1);
             for(Permission p:list){
                 JSONArray rows = new JSONArray();
                 JSONObject node = new JSONObject();
@@ -718,7 +711,6 @@ public class SysController {
                 node.put("parentcode", p.getParentcode()==null?"":p.getParentcode());
                 node.put("seq", p.getSeq()==null?"":p.getSeq());
                 node.put("type", p.getType()==null?"":p.getType());
-                node.put("per",p.getPer());
 
                 if(StringUtil.isNotBlank(parentcode)){
                     List<Permission> children = sysService.selectPermissionByParentcode(parentcode);
@@ -730,7 +722,6 @@ public class SysController {
                         node2.put("parentcode", p2.getParentcode()==null?"":p2.getParentcode());
                         node2.put("seq", p2.getSeq()==null?"":p2.getSeq());
                         node2.put("type", p2.getType()==null?"":p2.getType());
-                        node2.put("per",p2.getPer());
                         rows.put(node2);
                     }
                 }
@@ -770,10 +761,7 @@ public class SysController {
         obj.put("seq",permission.getSeq());
         obj.put("parentcode",permission.getParentcode());
         obj.put("name",permission.getName());
-        obj.put("description",permission.getDescription());
         obj.put("url",permission.getUrl());
-        obj.put("per",permission.getPer());
-        obj.put("fun",permission.getFun());
         return ResultObject.newJSONData(obj).toString();
     }
 

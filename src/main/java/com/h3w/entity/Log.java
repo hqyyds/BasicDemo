@@ -1,12 +1,14 @@
 package com.h3w.entity;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
 @Entity
 @Table(name = "ass_log", catalog = "")
-public class Log {
+public class Log implements Serializable {
+    private static final long serialVersionUID = 7138058752708665657L;
     private int id;
     private Integer userid;
     private Integer deptid;
