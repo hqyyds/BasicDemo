@@ -12,10 +12,11 @@ import java.util.Locale;
 public class DateUtil {
 
 
-	public static Date addhalf(){
-		Calendar now=Calendar.getInstance();
-		now.add(Calendar.MINUTE,30);
-		return now.getTime();
+	public static Date addDay(Date date,Integer day){
+		Calendar cal=Calendar.getInstance();
+		cal.setTime(date);
+		cal.set(Calendar.DAY_OF_YEAR,cal.get(Calendar.DAY_OF_YEAR)+day);
+		return cal.getTime();
 	}
 	/**
 	 * 获取天数
@@ -619,6 +620,105 @@ public static Date getFirstTimeOfDay(Date date){
 		c.setTime(specifiedDay);
 		c.add(Calendar.MONTH,1);
 		return c.getTime();
+	}
+	/**
+	 * 获取年度的第一天
+	 * @param year
+	 * @return
+	 */
+	public static Date getFirstDayOfYear(int year){
+		Calendar cal = Calendar.getInstance();
+		//设置年份
+		cal.set(Calendar.YEAR,year);
+		//设置月份
+		cal.set(Calendar.MONTH, cal.getActualMinimum(Calendar.MONTH));
+		//获取某月最小天数
+		int firstDay = cal.getActualMinimum(Calendar.DAY_OF_MONTH);
+		//设置日历中月份的最小天数
+		cal.set(Calendar.DAY_OF_MONTH, firstDay);
+		cal.set(Calendar.HOUR_OF_DAY, cal.getActualMinimum(Calendar.HOUR_OF_DAY));
+		cal.set(Calendar.MINUTE, cal.getActualMinimum(Calendar.MINUTE));
+		cal.set(Calendar.SECOND, cal.getActualMinimum(Calendar.SECOND));
+		//格式化日期
+		return cal.getTime();
+	}
+
+	/**
+	 * 获取年度的最后一天
+	 * @param year
+	 * @return
+	 */
+	public static Date getLastDayOfYear(int year){
+		Calendar cal = Calendar.getInstance();
+		//设置年份
+		cal.set(Calendar.YEAR,year);
+		//设置月份
+		cal.set(Calendar.MONTH, cal.getActualMaximum(Calendar.MONTH));
+		//获取某月最大天数
+		int lastDay = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+		//设置日历中月份的最大天数
+		cal.set(Calendar.DAY_OF_MONTH, lastDay);
+		cal.set(Calendar.HOUR_OF_DAY, cal.getActualMaximum(Calendar.HOUR_OF_DAY));
+		cal.set(Calendar.MINUTE, cal.getActualMaximum(Calendar.MINUTE));
+		cal.set(Calendar.SECOND, cal.getActualMaximum(Calendar.SECOND));
+		//格式化日期
+		return cal.getTime();
+	}
+
+	/**
+	 * 当前季度的开始时间，即2012-01-1 00:00:00
+	 *
+	 * @return
+	 */
+	public  static Date getCurrentQuarterStartTime() {
+		Calendar c = Calendar.getInstance();
+		int currentMonth = c.get(Calendar.MONTH) + 1;
+		Date now = null;
+		try {
+			if (currentMonth >= 1 && currentMonth <= 3)
+				c.set(Calendar.MONTH, 0);
+			else if (currentMonth >= 4 && currentMonth <= 6)
+				c.set(Calendar.MONTH, 3);
+			else if (currentMonth >= 7 && currentMonth <= 9)
+				c.set(Calendar.MONTH, 4);
+			else if (currentMonth >= 10 && currentMonth <= 12)
+				c.set(Calendar.MONTH, 9);
+			c.set(Calendar.DATE, 1);
+			return c.getTime();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return now;
+	}
+
+	/**
+	 * 当前季度的结束时间，即2012-03-31 23:59:59
+	 *
+	 * @return
+	 */
+	public static  Date getCurrentQuarterEndTime() {
+		Calendar c = Calendar.getInstance();
+		int currentMonth = c.get(Calendar.MONTH) + 1;
+		Date now = null;
+		try {
+			if (currentMonth >= 1 && currentMonth <= 3) {
+				c.set(Calendar.MONTH, 2);
+				c.set(Calendar.DATE, 31);
+			} else if (currentMonth >= 4 && currentMonth <= 6) {
+				c.set(Calendar.MONTH, 5);
+				c.set(Calendar.DATE, 30);
+			} else if (currentMonth >= 7 && currentMonth <= 9) {
+				c.set(Calendar.MONTH,8);
+				c.set(Calendar.DATE, 30);
+			} else if (currentMonth >= 10 && currentMonth <= 12) {
+				c.set(Calendar.MONTH, 11);
+				c.set(Calendar.DATE, 31);
+			}
+			return c.getTime();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return now;
 	}
 	/**
 	 * @param args

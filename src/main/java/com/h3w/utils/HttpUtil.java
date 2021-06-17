@@ -768,6 +768,39 @@ public class HttpUtil {
         return null;
 	}
 
+	public static String httpPost(String url){
+		//HttpClientBuilder
+		HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+		//HttpClient
+		CloseableHttpClient closeableHttpClient = httpClientBuilder.build();
+
+		HttpPost httpPost = new HttpPost(url);
+		httpPost.setHeader("Content-type", "application/json; charset=utf-8");
+		System.out.println(httpPost.getRequestLine());
+		try {
+			//ִ
+			HttpResponse httpResponse = closeableHttpClient.execute(httpPost);
+			//
+			HttpEntity entity = httpResponse.getEntity();
+
+			System.out.println("status:" + httpResponse.getStatusLine());
+			if (entity != null) {
+				String result = EntityUtils.toString(entity,"utf-8");//EntityUtils.toString(entity);
+				System.out.println("contentEncoding:" + entity.getContentEncoding());
+				System.out.println("response content:" + result);
+				return result;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				closeableHttpClient.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
 	/**
 	 * 发送post请求
 	 * @param url

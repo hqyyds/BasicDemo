@@ -1,8 +1,8 @@
 package com.h3w.config;
 
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
@@ -10,16 +10,17 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
- * 线程池配置
+ * 线程池配置 @EnableAsync 开启多线程 @Async异步发送
  * @author hyyds
  * @date 2021/6/16
  */
 @Configuration
 @EnableAsync
-public class ExecutorConfig {
+public class ExecutorConfig implements AsyncConfigurer {
 
-    @Bean
-    public Executor asyncExecutor() {
+
+    @Override
+    public Executor getAsyncExecutor() {
         //获取当前机器的核数
 //        int cpuNum = Runtime.getRuntime().availableProcessors();
         int cpuNum = 5;
