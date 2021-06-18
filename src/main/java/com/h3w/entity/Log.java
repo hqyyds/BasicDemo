@@ -3,12 +3,26 @@ package com.h3w.entity;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 @Entity
 @Table(name = "ass_log", catalog = "")
 public class Log implements Serializable {
     private static final long serialVersionUID = 7138058752708665657L;
+
+    public static Map<Integer,String> optypes;
+    static {
+        optypes = new HashMap<>();
+        optypes.put(1,"登录");
+        optypes.put(-1,"退出");
+        optypes.put(30,"系统管理");
+        optypes.put(31,"保存用户");
+        optypes.put(32,"分配角色");
+        optypes.put(33,"删除用户");
+        optypes.put(34,"重置密码");
+    }
     private int id;
     private Integer userid;
     private Integer deptid;

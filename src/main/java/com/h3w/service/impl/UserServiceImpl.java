@@ -188,9 +188,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<Log> queryLogs(Page<Log> page, String logtime, String name) {
-        String hql = "from Log where 1=1";
+    public Page<Log> queryLogs(Page<Log> page,Integer optype, Integer userid,String logtime, String name) {
+        String hql = "from CheckLog where 1=1";
         List<Object> param = new ArrayList<>();
+        if(optype!= null){
+            hql+= " and optype=?"+(param.size()+1);
+            param.add(optype);
+        }
+        if(userid!= null){
+            hql+= " and userid=?"+(param.size()+1);
+            param.add(userid);
+        }
         if(StringUtil.isNotBlank(logtime)){
             Date date = DateUtil.parseDate(logtime,"yyyy-MM-dd");
             Date sday = DateUtil.getFirstTimeOfDay(date);
@@ -201,7 +209,7 @@ public class UserServiceImpl implements UserService {
             param.add(eday);
         }
         if(StringUtil.isNotBlank(name)){
-            hql+= " and realname like '%"+name+"%'";
+            hql+= " and (realname like '%"+name+"%' or action like '%"+name+"%')";
         }
         hql += " order by logtime desc";
         return logDao.findPageByFetchedHql(hql, page,param.toArray());

@@ -1,7 +1,9 @@
 package com.h3w.security.permission;
 
 import com.h3w.entity.Permission;
+import com.h3w.entity.Resource;
 import com.h3w.entity.RolePermission;
+import com.h3w.entity.RoleResource;
 import com.h3w.service.SysService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.ConfigAttribute;
@@ -39,22 +41,37 @@ public class CustomFilterInvocationSecurityMetadataSource implements FilterInvoc
      */
     private void getResourcePermission(){
         map = new HashMap<>();
-
-        List<Permission> permissions = sysService.getPermissionList(null);
-        for(Permission per: permissions){
+        List<Resource> permissions = sysService.findResourceAll();
+        for(Resource per: permissions){
             String url = per.getUrl();
-            String method = per.getFun();
+//            String method = per.getFun();
             String str = url;
 
-            List<RolePermission> rolePermissions = per.getRolePermissions();
+            List<RoleResource> rolePermissions = per.getRoleResources();
             Collection<ConfigAttribute> attributes = new ArrayList<>();
-            for (RolePermission rp : rolePermissions) {
+            for (RoleResource rp : rolePermissions) {
                 attributes.add(new SecurityConfig(rp.getRole().getCode()));
             }
             // 占位符，需要权限才能访问的资源 都需要添加一个占位符，保证value不是空的
             attributes.add(new SecurityConfig("@needAuth"));
             map.put(str, attributes);
         }
+
+//        List<Permission> permissions = sysService.getPermissionList(null);
+//        for(Permission per: permissions){
+//            String url = per.getUrl();
+//            String method = per.getFun();
+//            String str = url;
+//
+//            List<RolePermission> rolePermissions = per.getRolePermissions();
+//            Collection<ConfigAttribute> attributes = new ArrayList<>();
+//            for (RolePermission rp : rolePermissions) {
+//                attributes.add(new SecurityConfig(rp.getRole().getCode()));
+//            }
+//            // 占位符，需要权限才能访问的资源 都需要添加一个占位符，保证value不是空的
+//            attributes.add(new SecurityConfig("@needAuth"));
+//            map.put(str, attributes);
+//        }
 
         /**
          * 创建两个权限：ROLE_ADMIN 和 ROLE_EMPLOYEE

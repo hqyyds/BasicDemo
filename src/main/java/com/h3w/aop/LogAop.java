@@ -75,7 +75,7 @@ public class LogAop {
             HttpServletRequest request = attributes.getRequest();
             // 获取请求 IP
             String ip = request.getRemoteAddr();
-            saveLog(ip,1,log.action(),log.action(),dataid, String.valueOf(time));
+            saveLog(ip,log.optype(),log.action(),log.content(),dataid, String.valueOf(time));
         }
         return result;
     }

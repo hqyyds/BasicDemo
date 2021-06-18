@@ -54,15 +54,21 @@ public interface SysService {
 
     List<Object> findPermissionIDListByRolecode(String rcode);
 
+    List<RolePermission> selectByRolecode(String rolecode);
+
     RolePermission getRolePermissionById(Integer id);
 
     void insertRolePermission(RolePermission rp);
 
     void updateRolePermission(RolePermission rp);
 
-    void deleteRolePermissionById(Integer id);
+    void deleteRolePermission(RolePermission rp);
 
     void deleteRolePermissionByRolecode(String rolecode);
 
     List<Dictionary> getDictionaryListByType(String type);
+
+    void saveResource(Resource resource);
+    Resource getResourceByUrl(String url);
+    List<Resource> findResourceAll();
 }

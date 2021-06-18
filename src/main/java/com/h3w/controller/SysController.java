@@ -2,8 +2,11 @@ package com.h3w.controller;
 
 import com.h3w.ResultObject;
 import com.h3w.StaticConstans;
+import com.h3w.annotation.NoRepeatSubmit;
 import com.h3w.annotation.ParamCheck;
+import com.h3w.annotation.PerResource;
 import com.h3w.entity.*;
+import com.h3w.enums.FunEnum;
 import com.h3w.service.SysService;
 import com.h3w.service.UserService;
 import com.h3w.utils.*;
@@ -14,9 +17,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -607,40 +608,28 @@ public class SysController {
         return ResultObject.newOk("删除成功");
     }
 
-    /**
-     * 所有的菜单权限列表
-     * @return
-     * @throws JSONException
-     */
-    @RequestMapping("/role/resource/permission")
-    @ResponseBody
-    public String resourcePermission(String rcode) throws JSONException {
+    @PerResource(url = "/sys/role/permissions",name = "角色列表",roles = "sysgly",fun = FunEnum.SELECT)
+    @GetMapping("/role/permissions")
+    public String rolePermissions(String rcode) throws JSONException {
 
         JSONArray array = new JSONArray();
-        JSONObject object = new JSONObject();
-
         List<String> idlist = new ArrayList<>();
-        List<Object> perList = sysService.findPermissionIDListByRolecode(rcode);
-        for(Object id: perList){
-            idlist.add(id.toString());
+        List<RolePermission> rolePermissions = sysService.selectByRolecode(rcode);
+        for(RolePermission rp: rolePermissions){
+            idlist.add(rp.getPermission().getCode());
         }
 
         List<Permission> permissions = sysService.getPermissionList(Permission.TYPE_1);
-
         for(Permission p: permissions){
             //obj菜单权限，pers按钮/功能权限
-            JSONArray pers = new JSONArray();
             JSONObject obj = new JSONObject();
             obj.put("code",p.getCode());
             obj.put("name",p.getName());
-            Integer status = 1;
-            if(!idlist.contains(p.getCode())){
-                status = 0;
-            }
+            obj.put("pname",p.getPname());
+            obj.put("icon",p.getIcon());
             List<Permission> childPermissions = sysService.selectPermissionByParentcode(p.getCode());
             obj.put("rows", getResourcePermissions(childPermissions,idlist));
-            obj.put("pers",pers);
-            obj.put("status",status);
+            obj.put("status",!idlist.contains(p.getCode())?0:1);
             array.put(obj);
         }
         return ResultObject.newJSONRows(array).toString();
@@ -649,21 +638,37 @@ public class SysController {
     public JSONArray getResourcePermissions(List<Permission> permissions, List<String> idlist) throws JSONException {
         JSONArray row = new JSONArray();
         for(Permission p: permissions){
-            JSONArray pers = new JSONArray();
             JSONObject obj = new JSONObject();
             obj.put("code",p.getCode());
             obj.put("name",p.getName());
-            Integer status = 1;
-            if(!idlist.contains(p.getCode())){
-                status = 0;
-            }
+            obj.put("pname",p.getPname());
             List<Permission> childPermissions = sysService.selectPermissionByParentcode(p.getCode());
             obj.put("rows", getResourcePermissions(childPermissions,idlist));
-            obj.put("status",status);
-            obj.put("pers",pers);
+            obj.put("status",!idlist.contains(p.getCode())?0:1);
             row.put(obj);
         }
         return row;
+    }
+
+    @com.h3w.annotation.Log(action = "设置角色权限",dataid = "#rcode")
+    @PerResource(url = "/sys/role/addpermissions",name = "设置角色权限",roles = "sysgly",fun = FunEnum.CREATE)
+    @NoRepeatSubmit(param = "#rcode")
+    @PostMapping("/role/addpermissions")
+    public ResultObject addPermissions(String rcode,String pcodes){
+        //先清空之前的数据
+        List<RolePermission> rolePermissions = sysService.selectByRolecode(rcode);
+        for(RolePermission rp: rolePermissions){
+            sysService.deleteRolePermission(rp);
+        }
+        //新建数据
+        String[] arr = pcodes.split(",");
+        for(String percode: arr){
+            RolePermission rp = new RolePermission();
+            rp.setRole(sysService.getRoleByCode(rcode));
+            rp.setPermission(sysService.getPermissionByCode(percode));
+            sysService.insertRolePermission(rp);
+        }
+        return ResultObject.newOk("授权成功！");
     }
 
     /**
@@ -801,20 +806,19 @@ public class SysController {
 
     /**
      * 日志查询
-     * @param request
      * @param page
      * @return
      */
     @ResponseBody
     @RequestMapping(value = "logList",method = RequestMethod.POST)
-    public String logList(HttpServletRequest request, String logtime, String name, Page<com.h3w.entity.Log> page) {
+    public String logList(Integer optype, Integer userid,String logtime, String name, Page<com.h3w.entity.Log> page) {
         try{
             JSONObject result = new JSONObject();
             result.put("statusCode", 200);
             result.put("message", "查询成功");
             JSONArray rows = new JSONArray();
             result.put("total", 0);
-            page = userService.queryLogs(page,logtime,name);
+            page = userService.queryLogs(page,optype,userid,logtime,name);
             if(page!=null){
                 result.put("total", page.getTotalCount());
                 for(com.h3w.entity.Log log:page.getResults()){
@@ -823,12 +827,10 @@ public class SysController {
                     node.put("userid", log.getUserid());
                     User u = userService.getById(log.getUserid());
                     node.put("username", u.getRealname());
-                    node.put("depname", "");
-                    if(u.getDept()!=null){
-                        node.put("depname", u.getDept().getName());
-                    }
+                    node.put("depname", u.getDept()!=null?u.getDept().getName():"");
                     node.put("action", log.getAction());
                     node.put("content", log.getContent());
+                    node.put("typename",Log.optypes.get(log.getOptype()));
                     rows.put(node);
                 }
             }

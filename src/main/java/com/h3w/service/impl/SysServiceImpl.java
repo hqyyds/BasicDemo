@@ -39,6 +39,8 @@ public class SysServiceImpl implements SysService {
     private RoleDao roleDao;
     @Autowired
     private DictionaryDao dictionaryDao;
+    @Autowired
+    ResourceDao resourceDao;
 
     @Override
     public List<Permission> getPermissionList(Integer type) {
@@ -202,6 +204,11 @@ public class SysServiceImpl implements SysService {
     }
 
     @Override
+    public List<RolePermission> selectByRolecode(String rolecode) {
+        return rolePermissionDao.getListByHQL("from RolePermission where rolecode=?1",rolecode);
+    }
+
+    @Override
     public RolePermission getRolePermissionById(Integer id) {
         return rolePermissionDao.getByHQL("from RolePermission where id=?1",id);
     }
@@ -217,8 +224,8 @@ public class SysServiceImpl implements SysService {
     }
 
     @Override
-    public void deleteRolePermissionById(Integer id) {
-        rolePermissionDao.deleteById(id);
+    public void deleteRolePermission(RolePermission rp) {
+        rolePermissionDao.delete(rp);
     }
 
     @Override
@@ -237,6 +244,23 @@ public class SysServiceImpl implements SysService {
             items = dictionaryDao.getListByHQL(hql,pd.getId(),Dictionary.STATUS_DEL);
         }
         return items;
+    }
+
+    @Override
+    public void saveResource(Resource resource) {
+        resourceDao.saveOrUpdate(resource);
+    }
+
+    @Override
+    public Resource getResourceByUrl(String url) {
+        String hql = "from Resource where url=?1";
+        return resourceDao.getByHQL(hql,url);
+    }
+
+    @Override
+    public List<Resource> findResourceAll() {
+        String hql = "from Resource where status=1";
+        return resourceDao.getListByHQL(hql);
     }
 
     public String getPermissionMaxCode(String parentcode){

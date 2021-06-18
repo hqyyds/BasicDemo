@@ -40,7 +40,7 @@ public interface UserService {
 
     void changeStatusById(Integer status,Integer id);
 
-    Page<Log> queryLogs(Page<Log> page, String logtime, String name);
+    Page<Log> queryLogs(Page<Log> page,Integer optype, Integer userid,String logtime, String name);
 
     void saveLog(Log log);
 }
