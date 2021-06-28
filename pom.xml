@@ -176,6 +176,11 @@
             <artifactId>pdfbox</artifactId>
             <version>2.0.1</version>
         </dependency>
+        <!-- Spring Boot Freemarker 依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-freemarker</artifactId>
+        </dependency>
         <!-- word转pdf依赖 jodconverter2.2.2的版本在maven上没有，需要本地添加jar到仓库-->
                 <dependency>
                     <groupId>com.artofsolving</groupId>

@@ -19,6 +19,11 @@ import java.io.PrintWriter;
 public class XssAndSqlFilter implements Filter {
 
     @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        System.out.println("XssAndSqlFilter init");
+    }
+
+    @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         String method = "GET";//设置初始值
@@ -71,6 +76,11 @@ public class XssAndSqlFilter implements Filter {
             System.out.println("IOException: " + e);
         }
         return str;
+    }
+
+    @Override
+    public void destroy() {
+        System.out.println("XssAndSqlFilter destroy");
     }
 
 }

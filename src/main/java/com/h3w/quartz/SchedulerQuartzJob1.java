@@ -9,9 +9,13 @@ import org.quartz.JobExecutionException;
  * @author hyyds
  * @date 2021/6/16
  */
+//@org.springframework.context.annotation.Configuration
+//@EnableScheduling
+//    @Scheduled(cron = "0 47 9 28 6 *")
 public class SchedulerQuartzJob1 implements Job{
+
     private void before(){
-        System.out.println("任务开始执行");
+
     }
 
     @Override

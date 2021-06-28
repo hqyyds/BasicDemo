@@ -26,11 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.util.Date;
 
-/**
- * 日志AOP
- * @author hyyds
- * @date 2021/6/16
- */
 @Component
 @Aspect
 public class LogAop {
@@ -70,12 +65,15 @@ public class LogAop {
         if(method.isAnnotationPresent(Log.class)) {
             //获取方法上注解中表明的权限
             Log log = (Log) method.getAnnotation(Log.class);
-            String dataid = generateKeyBySpEL(log.dataid(), pjp);
+            String dataid = "";
+            if(StringUtil.isNotBlank(log.dataid())){
+                dataid = generateKeyBySpEL(log.dataid(), pjp);
+            }
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             HttpServletRequest request = attributes.getRequest();
             // 获取请求 IP
             String ip = request.getRemoteAddr();
-            saveLog(ip,log.optype(),log.action(),log.content(),dataid, String.valueOf(time));
+            saveLog(ip,log.optype(),log.action(),log.action(),dataid, log.tbname(),time);
         }
         return result;
     }
@@ -93,7 +91,7 @@ public class LogAop {
         return expression.getValue(context).toString();
     }
 
-    public int saveLog(String ip,Integer op,String action,String content,String dataid,String tbname){
+    public int saveLog(String ip,Integer op,String action,String content,String dataid,String tbname,long runtime){
         //保存日志
         User user = loginController.getCurrentUser();
         com.h3w.entity.Log log = new com.h3w.entity.Log();
@@ -102,11 +100,12 @@ public class LogAop {
         log.setIp(ip);
         log.setLogtime(new Date());
         log.setUserid(user.getId());
-        log.setDeptid(user.getDept().getId());
+        log.setDeptid(user.getDeptid());
         log.setRealname(user.getRealname());
         log.setDataid(dataid);
         log.setTbname(tbname);
         log.setContent(content);
+        log.setRuntime(runtime);
         userService.saveLog(log);
         return 0;
     }

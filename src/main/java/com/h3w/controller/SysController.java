@@ -522,12 +522,14 @@ public class SysController {
     /**
      * 角色新增
      * @param role
-     * @param pids
+     * @param pcodes
      * @return
      */
-    @ResponseBody
-    @RequestMapping("/role/create")
-    public ResultObject createRole(Role role, String[] pids){
+    @com.h3w.annotation.Log(action = "角色新增",optype = Log.OPTYPE_SYS_MANAGE)
+    @PerResource(url = "/sys/role/create",name = "角色新增",roles = "supergly",fun = FunEnum.CREATE)
+    @NoRepeatSubmit(param = "#role.code")
+    @GetMapping("/role/create")
+    public ResultObject createRole(Role role, String pcodes){
         if(StringUtil.isBlank(role.getCode())){
             role.setCode(StringUtil.getCharAndNumr(6));
         }
@@ -535,18 +537,15 @@ public class SysController {
         if(r!=null){
             return ResultObject.newError("角色代码已存在");
         }
-        if(pids==null){
-            return ResultObject.newError("未选择权限");
-        }
         try {
-            //新建数据
-            for(String pid: pids){
+            String[] arr = pcodes.split(",");
+            for(String percode: arr){
                 RolePermission rp = new RolePermission();
                 rp.setRole(role);
-                rp.setPermission(sysService.getPermissionByCode(pid));
+                rp.setPermission(sysService.getPermissionByCode(percode));
                 sysService.insertRolePermission(rp);
             }
-            sysService.updateRole(role);
+            sysService.insertRole(role);
             return ResultObject.newOk("保存成功！");
         }catch (Exception e){
             e.printStackTrace();
@@ -556,12 +555,12 @@ public class SysController {
     /**
      * 角色修改
      * @param or
-     * @param pids
+     * @param pcodes
      * @return
      */
-    @ResponseBody
-    @RequestMapping("/role/update")
-    public ResultObject updateRole(Role or, String[] pids){
+    @com.h3w.annotation.Log(action = "角色修改",optype = Log.OPTYPE_SYS_MANAGE)
+    @PostMapping("/role/update")
+    public ResultObject updateRole(Role or, String pcodes){
 
         Role role = sysService.getRoleByCode(or.getCode());
         if(role== null){
@@ -576,18 +575,18 @@ public class SysController {
         if(or.getLevel()!=null){
             role.setLevel(or.getLevel());
         }
-        if(pids==null){
-            return ResultObject.newError("未选择权限");
-        }
         try {
-            //先清空之前的数据
-            sysService.deleteRolePermissionByRolecode(role.getCode());
-            //新建数据
-            for(String pid: pids){
-                RolePermission rp = new RolePermission();
-                rp.setRole(role);
-                rp.setPermission(sysService.getPermissionByCode(pid));
-                sysService.insertRolePermission(rp);
+            if(StringUtil.isNotBlank(pcodes)){
+                //先清空之前的数据
+                sysService.deleteRolePermissionByRolecode(role.getCode());
+                //新建数据
+                String[] arr = pcodes.split(",");
+                for(String percode: arr){
+                    RolePermission rp = new RolePermission();
+                    rp.setRole(role);
+                    rp.setPermission(sysService.getPermissionByCode(percode));
+                    sysService.insertRolePermission(rp);
+                }
             }
             sysService.updateRole(role);
             return ResultObject.newOk("保存成功！");

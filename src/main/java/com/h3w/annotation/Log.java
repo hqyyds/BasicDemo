@@ -17,5 +17,6 @@ public @interface Log {
     int optype() default 0;
     String action() default "";
     String dataid() default "";
+    String tbname() default "";
     String content() default "";
 }

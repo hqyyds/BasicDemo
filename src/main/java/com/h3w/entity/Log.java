@@ -17,12 +17,27 @@ public class Log implements Serializable {
         optypes = new HashMap<>();
         optypes.put(1,"登录");
         optypes.put(-1,"退出");
+        optypes.put(3,"上传文件");
+        optypes.put(4,"删除文件");
         optypes.put(30,"系统管理");
         optypes.put(31,"保存用户");
         optypes.put(32,"分配角色");
         optypes.put(33,"删除用户");
         optypes.put(34,"重置密码");
     }
+
+
+    public static final int OPTYPE_LOGIN = 1;//登录
+    public static final int OPTYPE_LOGIN_OUT = -1;//退出
+    public static final int OPTYPE_UPLOAD_FILE = 3;
+    public static final int OPTYPE_DEL_FILE = 4;
+    public static final int OPTYPE_CHECK = 21;//审批任务
+    public static final int OPTYPE_SYS_MANAGE = 30;
+    public static final int OPTYPE_SYS_SAVEUSER = 31;
+    public static final int OPTYPE_SYS_ADDROLE = 32;
+    public static final int OPTYPE_SYS_DELUSER = 33;
+    public static final int OPTYPE_SYS_REPASSWORD = 34;
+
     private int id;
     private Integer userid;
     private Integer deptid;
@@ -34,6 +49,7 @@ public class Log implements Serializable {
     private Date logtime;
     private String action;
     private String content;
+    private Long runtime;
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -147,5 +163,13 @@ public class Log implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id, userid, deptid, realname, dataid, tbname, optype, ip, logtime, action, content);
+    }
+
+    public Long getRuntime() {
+        return runtime;
+    }
+
+    public void setRuntime(Long runtime) {
+        this.runtime = runtime;
     }
 }
