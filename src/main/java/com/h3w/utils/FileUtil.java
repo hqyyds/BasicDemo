@@ -1,8 +1,10 @@
 package com.h3w.utils;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -10,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -240,6 +243,54 @@ public class FileUtil {
             }
         }
     }
+
+    /**
+     * 文件导出保存
+     * @param request
+     * @param response
+     * @param workbook
+     * @param filename
+     * @param ext
+     * @throws IOException
+     */
+    public void writeFile(HttpServletRequest request, HttpServletResponse response, HSSFWorkbook workbook, String filename, String ext) throws IOException {
+        // 保存到导出记录
+        String subpath = "upload/export/" + DateUtil.formatDate(new Date(), "yyyyMM");
+        String path = request.getSession().getServletContext().getRealPath("/") + subpath;
+        File dir = new File(path);
+        if (!dir.exists())
+            dir.mkdirs();
+        String saveName = Identities.uuid2() + ext;
+        File toFile = new File(path + "/" + saveName);
+        toFile.createNewFile();
+        FileOutputStream excelFileOutPutStream = new FileOutputStream(toFile);
+        workbook.write(excelFileOutPutStream);
+        excelFileOutPutStream.flush();
+        excelFileOutPutStream.close();
+        if (toFile.exists()) {//如果路径存在
+            FileInputStream fileInputStream;
+            try {
+                response.setHeader("Pragma", "no-cache");
+                response.setHeader("Cache-Control", "no-cache");
+                response.setDateHeader("Expires", 0);
+                response.setContentType("application/msexcel"); // 设置返回的文件类型
+                response.setHeader("Content-disposition",
+                        "attachment;filename=\"" + new String(filename.getBytes("gb2312"), "ISO8859-1") + ext +"\"");
+                fileInputStream = new FileInputStream(toFile.getPath());
+                int i = fileInputStream.available(); // 得到文件大小
+                byte data[] = new byte[i];
+                fileInputStream.read(data); // 读数据
+                fileInputStream.close();
+                ServletOutputStream outputStream = response.getOutputStream(); // 得到向客户端输出二进制数据的对象
+                outputStream.write(data); // 输出数据
+                outputStream.close();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static void main(String[] args) {
 //  // 删除单个文件
 //  String file = "c:/test/test.txt";

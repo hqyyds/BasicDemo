@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table(name = "doc_fileupload", catalog = "")
+@Table(name = "pro_fileupload", catalog = "")
 public class Fileupload implements Serializable {
 
     private static final long serialVersionUID = -7720136874773171716L;

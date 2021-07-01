@@ -6,7 +6,7 @@ import javax.persistence.Table;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "doc_role", catalog = "")
+@Table(name = "pro_role", catalog = "")
 public class Role implements Serializable {
     private static final long serialVersionUID = -1716493836578180320L;
     @Id

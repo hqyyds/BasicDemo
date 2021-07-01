@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
-@Table(name = "doc_permission")
+@Table(name = "pro_permission")
 @Entity
 public class Permission implements Serializable,Comparable<Permission> {
 

@@ -101,6 +101,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/upload/**",
                         "/doc/docRankList/export",
                         "/sys/initUserRole",
+                        "/test/**",
                         "/swagger-ui.html","/v2/**","/swagger-resources/**"
                 ).permitAll()
                 // 对于获取token的rest api要允许匿名访问

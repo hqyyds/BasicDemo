@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table(name = "ass_dictionary", catalog = "")
+@Table(name = "pro_dictionary", catalog = "")
 public class Dictionary implements Serializable {
 
     private static final long serialVersionUID = -691859058775986001L;
