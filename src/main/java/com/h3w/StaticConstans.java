@@ -7,15 +7,10 @@ import java.util.ResourceBundle;
 
 public class StaticConstans {
 	public static ResourceBundle bundle = null;
-
-	public static final String SESSION_CODE_KEY = "code";
-	public static final String SESSION_USER_KEY = "sys_user";
-	public static final String COOKIE_AUTO_ID = "ts_auto_id";
 	public static final String PASSWORD_INIT = "123456";//初始密码
 
 	public static final Integer STATUS_0 = 0;
 	public static final Integer STATUS_1 = 1;
-	public static final Integer STATUS_2 = 2;
 	public static Long exptime = null;
 
 	static{
