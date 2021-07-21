@@ -88,7 +88,8 @@ public class LogAop {
         for (int i = 0; i < args.length; i++) {
             context.setVariable(paramNames[i], args[i]);
         }
-        return expression.getValue(context).toString();
+        Object o = expression.getValue(context);
+        return o!= null?o.toString():"";
     }
 
     public int saveLog(String ip,Integer op,String action,String content,String dataid,String tbname,long runtime){

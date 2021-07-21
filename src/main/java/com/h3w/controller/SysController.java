@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -31,7 +32,7 @@ import java.util.List;
  * @author hyyds
  * @date 2021/6/16
  */
-@Controller
+@RestController
 @RequestMapping("/sys")
 public class SysController {
 
@@ -59,15 +60,17 @@ public class SysController {
      * @throws JSONException
      */
     @com.h3w.annotation.Log(action = "用户列表",dataid = "#name")
-    @ResponseBody
-    @RequestMapping("/user/list")
-    public String getUserlist(@ParamCheck(length = 2) Integer deptid, HttpServletRequest request,String name) throws JSONException {
+    @GetMapping("/user/list")
+    public String getUserlist(Integer deptid, HttpServletRequest request,String str) throws JSONException {
 
-        String path = request.getContextPath();
-        String urlpath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
-        List<User> items = userService.selectByDeptidAndStr(deptid,null);
+        List<User> items = userService.selectByDeptidAndStr(deptid,str);
         JSONArray array = new JSONArray();
         for(User user : items){
+            String roleNames = "";
+            List<UserRole> userRoles = user.getUserRoles();
+            for (UserRole ur : userRoles) {
+                roleNames += ur.getRole().getName() + ",";
+            }
             JSONObject obj = new JSONObject();
             obj.put("id",user.getId());
             obj.put("username",user.getUsername());
@@ -78,8 +81,10 @@ public class SysController {
             obj.put("remark",user.getRemark());
             obj.put("createtimestr",DateUtil.formatDate(user.getCreatetime(),"yyyy-MM-dd"));
             obj.put("status",user.getStatus());
-            obj.put("statusstr",user.getStatus()==User.STATUS_ENABLE?"启用":(user.getStatus()==User.STATUS_DISABLE?"禁用":"删除"));
+            obj.put("statusname",User.statusMap.get(user.getStatus()));
             obj.put("depid",user.getDept()!=null?user.getDept().getId():null);
+            obj.put("deptname",user.getDept()!=null?user.getDept().getName():null);
+            obj.put("rolenames",roleNames);
             array.put(obj);
         }
         return ResultObject.newJSONRows(array).toString();
@@ -90,8 +95,7 @@ public class SysController {
      * @param request
      * @return
      */
-    @ResponseBody
-    @RequestMapping(value = "/user/tree", method = RequestMethod.GET)
+    @GetMapping(value = "/user/tree")
     public String depUserData(HttpServletRequest request){
         List<Department> list = sysService.findAllDep();
         JSONObject result = new JSONObject();
@@ -100,14 +104,16 @@ public class SysController {
         JSONArray data = new JSONArray();
         for(Department dep:list){
             JSONObject node = new JSONObject();
+            node.put("id", "d"+dep.getId());
             node.put("deptid", dep.getId());
-            node.put("deptname", dep.getName());
+            node.put("name", dep.getName());
             JSONArray users = new JSONArray();
             List<User> userList = userService.findUserByDep(dep.getId());
             for(User u:userList){
                 JSONObject user = new JSONObject();
+                user.put("id", u.getId().toString());
                 user.put("userid", u.getId());
-                user.put("realname", u.getRealname());
+                user.put("name", u.getRealname());
                 users.put(user);
             }
             node.put("users", users);
@@ -117,11 +123,9 @@ public class SysController {
         return result.toString();
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/user/create",method = RequestMethod.POST)
-    public ResultObject create(User user,String[] rcodes){
-
-
+    @PerResource(url = "/sys/user/create",name = "创建用户",roles = "sysgly",fun = FunEnum.CREATE)
+    @PostMapping(value = "/user/create")
+    public ResultObject create(User user,String rcodes){
         User ouser = userService.getUserByUsername(user.getUsername());
         if(ouser!= null){
             return ResultObject.newError("用户名不能重复");
@@ -137,12 +141,13 @@ public class SysController {
             user.setPassword(DigestUtils.md5Hex(psd));
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             List<UserRole> userRoles = new ArrayList<>();
-            if(rcodes.length>0){
-                for(int i=0;i<rcodes.length;i++){
-                    UserRole userRole = new UserRole();
-                    userRole.setUser(user);
-                    userRole.setRole(sysService.getRoleByCode(rcodes[i]));
-                    userRoles.add(userRole);
+            if(StringUtil.isNotBlank(rcodes)){
+                String[] arr = rcodes.split(",");
+                for(String code: arr){
+                    UserRole ur = new UserRole();
+                    ur.setUser(user);
+                    ur.setRole(sysService.getRoleByCode(code));
+                    userRoles.add(ur);
                 }
             }
             user.setUserRoles(userRoles);
@@ -155,18 +160,11 @@ public class SysController {
         }
     }
 
-    @ResponseBody
-    @RequestMapping("/user/get")
-    public String getUser(Integer id) throws IOException, JSONException {
-
+    @GetMapping("/get/{id}")
+    public String getUser(@PathVariable Integer id) throws IOException, JSONException {
         User user = userService.getById(id);
-        List<UserRole> userRoles = user.getUserRoles();
-        String roles = "";
-        String rcodes = "";
-        for(UserRole ur: userRoles){
-            Role role = ur.getRole();
-            roles += (role!=null?role.getName():"") +" ";
-            rcodes = (role!=null?role.getCode():"");
+        if(user== null){
+            return ResultObject.newError("用户不存在").toString();
         }
         JSONObject obj = new JSONObject();
         obj.put("id",user.getId());
@@ -176,19 +174,26 @@ public class SysController {
         obj.put("phone",user.getPhone());
         obj.put("email",user.getEmail());
         obj.put("remark",user.getRemark());
-        obj.put("createtimestr",DateUtil.formatDate(user.getCreatetime(),"yyyy-MM-dd"));
+        obj.put("createtimestr", DateUtil.formatDate(user.getCreatetime(),"yyyy-MM-dd"));
         obj.put("status",user.getStatus());
-        obj.put("statusstr",user.getStatus()==User.STATUS_ENABLE?"启用":(user.getStatus()==User.STATUS_DISABLE?"禁用":"删除"));
+        obj.put("statusname",User.statusMap.get(user.getStatus()));
         obj.put("depid",user.getDept()!=null?user.getDept().getId():null);
-        obj.put("roles",roles);
-        obj.put("rcodes",rcodes);
-
+        obj.put("deptname",user.getDept()!=null?user.getDept().getName():null);
+        String roleNames = "";
+        JSONArray roleCodes = new JSONArray();
+        List<UserRole> userRoles = user.getUserRoles();
+        for (UserRole ur : userRoles) {
+            roleNames += ur.getRole().getName() + ",";
+            roleCodes.put(ur.getRole().getCode());
+        }
+        obj.put("rolenames",roleNames);
+        obj.put("rolecodes",roleCodes);
         return ResultObject.newJSONData(obj).toString();
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/user/edit",method = RequestMethod.POST)
-    public ResultObject edit(User user,String[] rcodes){
+    @PerResource(url = "/sys/user/edit",name = "创建用户",roles = "sysgly",fun = FunEnum.CREATE)
+    @PostMapping(value = "/user/edit")
+    public ResultObject edit(User user,String rcodes){
 
         Integer uid = user.getId();
         User ouser = userService.findByUsernameAndNotId(user.getUsername(),uid);
@@ -202,13 +207,13 @@ public class SysController {
             List<UserRole> userRoles = nuser.getUserRoles();
             userRoles.clear();
 //            userService.deleteUserRoleByUserid(uid);
-
-            if(rcodes.length>0){
-                for(int i=0;i<rcodes.length;i++){
-                    UserRole userRole = new UserRole();
-                    userRole.setUser(nuser);
-                    userRole.setRole(sysService.getRoleByCode(rcodes[i]));
-                    userRoles.add(userRole);
+            if(StringUtil.isNotBlank(rcodes)){
+                String[] arr = rcodes.split(",");
+                for(String code: arr){
+                    UserRole ur = new UserRole();
+                    ur.setUser(nuser);
+                    ur.setRole(sysService.getRoleByCode(code));
+                    userRoles.add(ur);
                 }
             }
             userService.updateSelect(nuser);
@@ -220,6 +225,9 @@ public class SysController {
     }
 
     public void selectUser(User nuser, User us){
+        if(us.getStatus()!= null){
+            nuser.setStatus(us.getStatus());
+        }
         if(StringUtil.isNotBlank(us.getUsername())){
             nuser.setUsername(us.getUsername());
         }
@@ -252,8 +260,7 @@ public class SysController {
      * @throws IOException
      * @throws JSONException
      */
-    @ResponseBody
-    @RequestMapping(value = "/user/updateHead",method = RequestMethod.POST)
+    @PostMapping(value = "/user/updateHead")
     public ResultObject editHead(Integer userid,HttpServletRequest request) throws IOException {
 
         String re = fileuploadController.uploadFile(request);
@@ -274,13 +281,26 @@ public class SysController {
         }
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/user/delmany",method = RequestMethod.POST)
-    public ResultObject deleteMany(Integer[] ids){
+    @PerResource(url = "/sys/user/delmany",name = "批量删除用户",roles = "sysgly",fun = FunEnum.DELETE)
+    @PostMapping(value = "/user/delmany")
+    public ResultObject deleteMany(String ids){
         try{
-            for(int i=0; i<ids.length; i++){
-                userService.changeStatusById(User.STATUS_DEL_ED,ids[i]);
+            String[] arr = ids.split(",");
+            for(String id: arr){
+                userService.changeStatusById(User.STATUS_DEL_ED,Integer.valueOf(id));
             }
+            return ResultObject.newOk("已删除！");
+        }catch (Exception e){
+            e.printStackTrace();
+            return ResultObject.newError("系统内部错误！");
+        }
+    }
+
+    @PerResource(url = "/sys/user/del",name = "删除用户",roles = "sysgly",fun = FunEnum.DELETE)
+    @GetMapping("/user/del")
+    public ResultObject delete(Integer id){
+        try{
+            userService.changeStatusById(User.STATUS_DEL_ED,id);
             return ResultObject.newOk("已删除！");
         }catch (Exception e){
             e.printStackTrace();
@@ -294,13 +314,13 @@ public class SysController {
      * @param ids
      * @return
      */
-    @ResponseBody
-    @RequestMapping(value = "/user/resetpsd",method = RequestMethod.POST)
-    public ResultObject resetPasswordn(Integer[] ids){
+    @PerResource(url = "/sys/user/resetpsd",name = "重置密码",roles = "sysgly",fun = FunEnum.UPDATE)
+    @PostMapping(value = "/user/resetpsd")
+    public ResultObject resetPasswordn(String ids){
         try{
-            for(int i=0; i<ids.length; i++){
-
-                User user = userService.getById(ids[i]);
+            String[] arr = ids.split(",");
+            for(String id: arr){
+                User user = userService.getById(Integer.valueOf(id));
                 if(user!=null){
                     user.setPassword(DigestUtils.md5Hex(StaticConstans.PASSWORD_INIT));
                     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -320,26 +340,11 @@ public class SysController {
      * @return
      * @throws JSONException
      */
-    @RequestMapping("/department/list")
-    @ResponseBody
+    @GetMapping("/department/list")
     public String getDepartmentList() throws JSONException {
         //科室显示顺序排序
         try {
             List<Department> items = sysService.getAllDepartmentByParentid(Department.ROOT_ID);
-//            for(Department item: items){
-//                if(item.getName().equals("大队")){
-//                    item.setSort(1);
-//                }else if(item.getName().equals("计划室")) {
-//                    item.setSort(2);
-//                }else {
-//                    item.setSort(9);
-//                }
-//            }
-//            Collections.sort(items, new Comparator<Department>() {
-//                public int compare(Department arg1, Department arg0) {
-//                    return arg1.getSort().compareTo(arg0.getSort());
-//                }
-//            });
             JSONArray array = new JSONArray();
             for(Department d: items){
                 JSONObject obj = new JSONObject();
@@ -356,14 +361,24 @@ public class SysController {
         }
     }
 
-    @RequestMapping("/department/listTree")
-    @ResponseBody
-    public String getDepartmentList(Integer deptid) throws JSONException {
+    @GetMapping("/department/listTree")
+    public String getDepartmentList(Integer deptid,Integer flag) throws IOException, JSONException {
 
-        List<Department> deptList = sysService.getAllDepartmentByParentid(Department.ROOT_ID);
         JSONArray array = new JSONArray();
-        array = getDeptArray(deptList);
-        return array.toString();
+        Department rd = sysService.getDepartmentById(Department.ROOT_ID);
+        if(deptid != null){
+            rd = sysService.getDepartmentById(deptid);
+        }
+        JSONObject o = new JSONObject();
+        o.put("id", rd.getId());
+        o.put("name", rd.getName());
+
+        List<Department> childList = sysService.getAllDepartmentByParentid(rd.getId());
+        o.put("havechild",childList.size()>0?1:0);
+//        o.put("havechild",Department.HAVECHILD_YES.equals(rd.getHavechild())?1:0);
+        o.put("orgs",getDeptArray(childList));
+        array.put(o);
+        return ResultObject.newJSONRows(array).toString();
     }
 
     public JSONArray getDeptArray(List<Department> deptList) throws JSONException {
@@ -372,24 +387,25 @@ public class SysController {
             JSONObject o = new JSONObject();
             o.put("id", dep.getId());
             o.put("name", dep.getName());
-            o.put("parentid", dep.getParentid());
-            o.put("remark",dep.getRemark());
-
             List<Department> childList = sysService.getAllDepartmentByParentid(dep.getId());
+            o.put("havechild",childList.size()>0?1:0);
             o.put("orgs",getDeptArray(childList));
             array.put(o);
         }
         return array;
     }
 
-    @RequestMapping(value = "/department/create",method = RequestMethod.POST)
-    @ResponseBody
+    @PerResource(url = "/sys/department/create",name = "新增部门",roles = "sysgly",fun = FunEnum.CREATE)
+    @PostMapping(value = "/department/create")
     public ResultObject departmentCreate(Department department){
         if(StringUtil.isBlank(department.getName())){
             return ResultObject.newError("参数错误");
         }
         try {
-            department.setParentid(Department.ROOT_ID);
+            if(department.getParentid()== null){
+                department.setParentid(Department.ROOT_ID);
+            }
+            department.setFlag(Department.FLAG_INIT);
             sysService.insertDepartment(department);
             return ResultObject.newOk("新增成功");
         }catch (Exception e){
@@ -398,10 +414,10 @@ public class SysController {
         }
     }
 
-    @RequestMapping(value = "/department/update",method = RequestMethod.POST)
-    @ResponseBody
-    public ResultObject departmentUpdate(Department department){
-        if(StringUtil.isBlank(department.getName())){
+    @PerResource(url = "/sys/department/update",name = "修改部门",roles = "sysgly",fun = FunEnum.UPDATE)
+    @PostMapping(value = "/department/update")
+    public ResultObject departmentUpdate(@ApiIgnore Department department){
+        if(department.getId() == null){
             return ResultObject.newError("参数错误");
         }
         Department odepartment = sysService.getDepartmentById(department.getId());
@@ -409,8 +425,15 @@ public class SysController {
             return ResultObject.newError("未找到组织");
         }
         try {
-            odepartment.setName(department.getName());
-            odepartment.setRemark(department.getRemark());
+            if(StringUtil.isNotBlank(department.getName())){
+                odepartment.setName(department.getName());
+            }
+            if(StringUtil.isNotBlank(department.getRemark())){
+                odepartment.setRemark(department.getRemark());
+            }
+            if(department.getParentid()!=null){
+                odepartment.setParentid(department.getParentid());
+            }
             sysService.updateDepartment(odepartment);
             return ResultObject.newOk("修改成功");
         }catch (Exception e){
@@ -419,8 +442,8 @@ public class SysController {
         }
     }
 
-    @RequestMapping("/department/del")
-    @ResponseBody
+    @PerResource(url = "/sys/department/del",name = "删除部门",roles = "sysgly",fun = FunEnum.DELETE)
+    @PostMapping("/department/del")
     public ResultObject departmentDel(Integer did){
         Department department = sysService.getDepartmentById(did);
         if(department== null){
@@ -439,8 +462,7 @@ public class SysController {
         }
     }
 
-    @RequestMapping("/department/get")
-    @ResponseBody
+    @GetMapping("/department/get")
     public String departmentGet(Integer id) throws JSONException, IOException {
         Department department = sysService.getDepartmentById(id);
         if(department==null){
@@ -464,8 +486,7 @@ public class SysController {
      * @return
      * @throws JSONException
      */
-    @ResponseBody
-    @RequestMapping("/role/list")
+    @GetMapping("/role/list")
     public String roleList() throws JSONException, IOException {
         List<Role> roles = sysService.findRoleAll();
         JSONArray array = new JSONArray();
@@ -486,8 +507,7 @@ public class SysController {
      * @throws IOException
      * @throws JSONException
      */
-    @ResponseBody
-    @RequestMapping("/role/levels")
+    @GetMapping("/role/levels")
     public String levels() throws JSONException {
         JSONArray array = new JSONArray();
         JSONObject object = new JSONObject();
@@ -503,8 +523,7 @@ public class SysController {
         return object.toString();
     }
 
-    @ResponseBody
-    @RequestMapping("/role/get")
+    @GetMapping("/role/get")
     public String getRole(String rcode) throws JSONException, IOException {
         Role role = sysService.getRoleByCode(rcode);
         if(role==null){
@@ -526,7 +545,7 @@ public class SysController {
      * @return
      */
     @com.h3w.annotation.Log(action = "角色新增",optype = Log.OPTYPE_SYS_MANAGE)
-    @PerResource(url = "/sys/role/create",name = "角色新增",roles = "supergly",fun = FunEnum.CREATE)
+    @PerResource(url = "/sys/role/create",name = "角色新增",roles = "sysgly",fun = FunEnum.CREATE)
     @NoRepeatSubmit(param = "#role.code")
     @GetMapping("/role/create")
     public ResultObject createRole(Role role, String pcodes){
@@ -559,6 +578,7 @@ public class SysController {
      * @return
      */
     @com.h3w.annotation.Log(action = "角色修改",optype = Log.OPTYPE_SYS_MANAGE)
+    @PerResource(url = "/sys/role/update",name = "角色修改",roles = "sysgly",fun = FunEnum.UPDATE)
     @PostMapping("/role/update")
     public ResultObject updateRole(Role or, String pcodes){
 
@@ -596,8 +616,9 @@ public class SysController {
         }
     }
 
-    @ResponseBody
-    @RequestMapping("/role/del")
+    @com.h3w.annotation.Log(action = "删除角色",dataid = "#rcode",optype = Log.OPTYPE_SYS_MANAGE)
+    @PerResource(url = "/sys/role/del",name = "角色删除",roles = "sysgly",fun = FunEnum.DELETE)
+    @PostMapping("/role/del")
     public ResultObject delRole(String rcode) {
         Role role = sysService.getRoleByCode(rcode);
         if(role==null){
@@ -607,7 +628,7 @@ public class SysController {
         return ResultObject.newOk("删除成功");
     }
 
-    @PerResource(url = "/sys/role/permissions",name = "角色列表",roles = "sysgly",fun = FunEnum.SELECT)
+    @PerResource(url = "/sys/role/permissions",name = "角色权限列表",roles = "sysgly",fun = FunEnum.SELECT)
     @GetMapping("/role/permissions")
     public String rolePermissions(String rcode) throws JSONException {
 
@@ -676,8 +697,7 @@ public class SysController {
      * @throws IOException
      * @throws JSONException
      */
-    @ResponseBody
-    @RequestMapping("/permission/headnav")
+    @GetMapping("/permission/headnav")
     public String headnav() throws IOException, JSONException {
         List<Permission> resourceList = sysService.getPermissionList(Permission.TYPE_1);
         JSONArray array = new JSONArray();
@@ -699,39 +719,23 @@ public class SysController {
      * @param request
      * @return
      */
-    @ResponseBody
-    @RequestMapping(value = "/permission/tree", method = RequestMethod.GET)
+    @GetMapping(value = "/permission/list")
     public String permissionsTree(HttpServletRequest request){
         try{
             JSONArray array = new JSONArray();
             List<Permission> list = sysService.getPermissionList(Permission.TYPE_1);
             for(Permission p:list){
-                JSONArray rows = new JSONArray();
-                JSONObject node = new JSONObject();
-                String parentcode = p.getCode();
-                node.put("code",p.getCode());
-                node.put("name",p.getName());
-                node.put("url", p.getUrl()==null?"":p.getUrl());
-                node.put("parentcode", p.getParentcode()==null?"":p.getParentcode());
-                node.put("seq", p.getSeq()==null?"":p.getSeq());
-                node.put("type", p.getType()==null?"":p.getType());
-
-                if(StringUtil.isNotBlank(parentcode)){
-                    List<Permission> children = sysService.selectPermissionByParentcode(parentcode);
-                    for(Permission p2:children){
-                        JSONObject node2 = new JSONObject();
-                        node2.put("code",p2.getCode());
-                        node2.put("name",p2.getName());
-                        node2.put("url", p2.getUrl()==null?"":p2.getUrl());
-                        node2.put("parentcode", p2.getParentcode()==null?"":p2.getParentcode());
-                        node2.put("seq", p2.getSeq()==null?"":p2.getSeq());
-                        node2.put("type", p2.getType()==null?"":p2.getType());
-                        rows.put(node2);
-                    }
-                }
-
-                node.put("rows",rows);
-                array.put(node);
+                JSONObject obj = new JSONObject();
+                obj.put("seq",p.getSeq());
+                obj.put("code",p.getCode());
+                obj.put("name",p.getName());
+                obj.put("pname",p.getPname());
+                obj.put("icon",p.getIcon());
+                obj.put("url",p.getUrl());
+                obj.put("parentcode",p.getParentcode());
+                List<Permission> childPermissions = sysService.selectPermissionByParentcode(p.getCode());
+                obj.put("rows", getPermissions(childPermissions));
+                array.put(obj);
             }
             return ResultObject.newJSONRows(array).toString();
         }catch(Exception e){
@@ -740,20 +744,36 @@ public class SysController {
         }
     }
 
-    /**
-     * 添加修改权限
-     * @param request
-     * @return
-     */
-    @ResponseBody
-    @RequestMapping(value = "/savePermission",method = {RequestMethod.GET,RequestMethod.POST})
-    public String savePermission(HttpServletRequest request,Permission per){
-        return sysService.savePermission(per);
+    public JSONArray getPermissions(List<Permission> permissions) throws JSONException {
+        JSONArray row = new JSONArray();
+        for(Permission p: permissions){
+            JSONObject obj = new JSONObject();
+            obj.put("seq",p.getSeq());
+            obj.put("code",p.getCode());
+            obj.put("name",p.getName());
+            obj.put("icon",p.getIcon());
+            obj.put("url",p.getUrl());
+            obj.put("parentcode",p.getParentcode());
+            List<Permission> childPermissions = sysService.selectPermissionByParentcode(p.getCode());
+            obj.put("rows", getPermissions(childPermissions));
+            row.put(obj);
+        }
+        return row;
     }
 
+    @PerResource(url = "/sys/permission/create",name = "保存菜单",roles = "sysgly",fun = FunEnum.CREATE)
+    @PostMapping("/permission/create")
+    public ResultObject createPermissson(Permission permission){
+        return sysService.savePermission(permission);
+    }
 
-    @RequestMapping("/permission/get")
-    @ResponseBody
+    @PerResource(url = "/sys/permission/update",name = "修改菜单",roles = "sysgly",fun = FunEnum.UPDATE)
+    @PostMapping("/permission/update")
+    public ResultObject updatePermission(@ApiIgnore Permission permission){
+        return sysService.savePermission(permission);
+    }
+
+    @GetMapping("/permission/get")
     public String getPermission(String code) throws JSONException, IOException {
         Permission permission = sysService.getPermissionByCode(code);
         if(permission==null){
@@ -769,7 +789,8 @@ public class SysController {
         return ResultObject.newJSONData(obj).toString();
     }
 
-    @ResponseBody
+    @com.h3w.annotation.Log(action = "删除菜单")
+    @PerResource(url = "/sys/permission/del",name = "删除菜单",roles = "sysgly",fun = FunEnum.DELETE)
     @RequestMapping("/permission/del")
     public ResultObject deletePermission(String code){
 
@@ -784,18 +805,17 @@ public class SysController {
 
 
     /**
-     * 更新用户数据
+     * 初始用户数据
      * @return
      */
-    @ResponseBody
-    @RequestMapping("/initUserRole")
+    @GetMapping("/initUserRole")
     public String initUsers(){
         List<User> items = userService.findAll();
         for(User u: items){
             List<UserRole> userRoles = u.getUserRoles();
             userRoles.clear();
             UserRole ur = new UserRole();
-            ur.setRole(sysService.getRoleByCode("member"));
+            ur.setRole(sysService.getRoleByCode(Role.CODE_BASE));
             ur.setUser(u);
             userRoles.add(ur);
             userService.updateSelect(u);
@@ -808,8 +828,7 @@ public class SysController {
      * @param page
      * @return
      */
-    @ResponseBody
-    @RequestMapping(value = "logList",method = RequestMethod.POST)
+    @PostMapping(value = "logList")
     public String logList(Integer optype, Integer userid,String logtime, String name, Page<com.h3w.entity.Log> page) {
         try{
             JSONObject result = new JSONObject();

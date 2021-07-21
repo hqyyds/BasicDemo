@@ -1,5 +1,6 @@
 package com.h3w.service.impl;
 
+import com.h3w.ResultObject;
 import com.h3w.dao.LogDao;
 import com.h3w.dao.UserDao;
 import com.h3w.dao.UserRoleDao;
@@ -14,6 +15,8 @@ import com.h3w.utils.DateUtil;
 import com.h3w.utils.Page;
 import com.h3w.utils.StringUtil;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -136,13 +139,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> selectByDeptidAndStr(Integer deptid, String str) {
         List<Object> param = new ArrayList<>();
-        String hql = "from User where status!=-1 and depid=?1";
-        param.add(deptid);
-        if(StringUtil.isNotBlank(str)){
-            hql+= " and username like '%'||?2||'%' or realname like '%'||?3||'%' ";
-            param.add(str);
-            param.add(str);
+        String hql = "from User where 1=1";
+        int i=1;
+        if(deptid!=null){
+            hql+= " and depid=?"+i++;
+            param.add(deptid);
         }
+        if(StringUtil.isNotBlank(str)){
+            hql+= " and (username like '%"+str+"%' or realname like '%"+str+"%')";
+        }
+        hql+= " order by createtime desc";
         return userDao.getListByHQL(hql,param.toArray());
     }
 

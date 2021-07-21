@@ -75,14 +75,13 @@ public class RepeatSubmitAspect {
             //可用redis设置缓存
 //            redisUtil.set(key,key,lockTime);
         }
-        try {
-            return pjp.proceed();
-        } catch (Throwable throwable) {
-            throw new RuntimeException("服务器异常");
-        } finally {
-            // 手动将缓存清除,实际情况下只要接口处理完成就可以执行下一次请求
-//            CACHES.invalidate(key);
-        }
+        return pjp.proceed();
+//        try {
+//            return pjp.proceed();
+//        } finally {
+//            // 手动将缓存清除,实际情况下只要接口处理完成就可以执行下一次请求
+////            CACHES.invalidate(key);
+//        }
     }
 
     private String getKey(String token, String path) {
@@ -99,6 +98,7 @@ public class RepeatSubmitAspect {
         for (int i = 0; i < args.length; i++) {
             context.setVariable(paramNames[i], args[i]);
         }
-        return expression.getValue(context).toString();
+        Object o = expression.getValue(context);
+        return o!= null?o.toString():"";
     }
 }

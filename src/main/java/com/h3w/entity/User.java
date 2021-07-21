@@ -3,7 +3,9 @@ package com.h3w.entity;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "sys_user")
@@ -14,6 +16,14 @@ public class User implements Serializable {
     public static final int STATUS_DISABLE=1;//不可使用
     public static final int STATUS_DELETED=2;//删除状态
     private static final long serialVersionUID = 726596797441866380L;
+
+    public static Map<Integer,String> statusMap;
+    static {
+        statusMap = new HashMap<>();
+        statusMap.put(-1,"已删除");
+        statusMap.put(0,"启用");
+        statusMap.put(1,"禁用");
+    }
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

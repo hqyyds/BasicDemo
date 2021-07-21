@@ -1,5 +1,6 @@
 package com.h3w.service;
 
+import com.h3w.ResultObject;
 import com.h3w.entity.*;
 
 import java.util.List;
@@ -26,7 +27,7 @@ public interface SysService {
 
     void insertPermission(Permission permission);
 
-    String savePermission(Permission permission);
+    ResultObject savePermission(Permission permission);
 
     void deletePermissionById(Integer id);
 

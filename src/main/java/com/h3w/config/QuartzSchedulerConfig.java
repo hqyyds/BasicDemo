@@ -3,15 +3,8 @@ package com.h3w.config;
 import java.util.Date;
 
 import com.h3w.quartz.SchedulerQuartzJob1;
-import org.quartz.CronScheduleBuilder;
-import org.quartz.CronTrigger;
-import org.quartz.JobBuilder;
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.TriggerBuilder;
-import org.quartz.TriggerKey;
+import com.h3w.quartz.StartupQuartzJob;
+import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -39,6 +32,7 @@ public class QuartzSchedulerConfig {
      * @throws SchedulerException
      */
     public void startJob() throws SchedulerException {
+        initJob(scheduler);
 //        startJob1(scheduler);
 //        startJob2(scheduler);
         scheduler.start();
@@ -143,6 +137,23 @@ public class QuartzSchedulerConfig {
         if (jobDetail == null)
             return;
         scheduler.deleteJob(jobKey);
+    }
+
+    //启动执行，只执行一次
+    private void initJob(Scheduler scheduler) throws SchedulerException {
+
+        // 通过JobBuilder构建JobDetail实例，JobDetail规定只能是实现Job接口的实例
+        // JobDetail 是具体Job实例
+        JobDetail jobDetail = JobBuilder.newJob(StartupQuartzJob.class).withIdentity("initjob", "group1").build();
+        SimpleTrigger simpleTrigger = TriggerBuilder.newTrigger()
+                .withIdentity("job1", "group1")
+                .startAt(new Date())
+                .withSchedule(
+                        SimpleScheduleBuilder.simpleSchedule()
+                                .withIntervalInSeconds(3)
+                                .withRepeatCount(0))//重复执行的次数，因为加入任务的时候马上执行了，所以不需要重复，否则会多一次。
+                .build();
+        scheduler.scheduleJob(jobDetail, simpleTrigger);
     }
 
     private void startJob1(Scheduler scheduler) throws SchedulerException {

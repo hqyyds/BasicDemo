@@ -18,7 +18,7 @@ public class MyStartupRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-//        scheduleJobs.startJob();
+        scheduleJobs.startJob();
 //        System.out.println(">>>>>>>>>>>>>>>定时任务开始执行<<<<<<<<<<<<<");
     }
 }

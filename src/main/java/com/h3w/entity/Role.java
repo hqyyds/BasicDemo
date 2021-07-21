@@ -9,6 +9,10 @@ import java.io.Serializable;
 @Table(name = "pro_role", catalog = "")
 public class Role implements Serializable {
     private static final long serialVersionUID = -1716493836578180320L;
+
+    public final static String CODE_GLY = "sysgly";
+    public final static String CODE_BASE = "base";
+
     @Id
     private String code;
     private String name;

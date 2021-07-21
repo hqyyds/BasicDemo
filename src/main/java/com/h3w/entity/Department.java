@@ -9,6 +9,7 @@ import java.util.List;
 public class Department implements Serializable {
 
     public static final int ROOT_ID=1;//根目录
+    public static final Integer FLAG_INIT= 0;//初始
     private static final long serialVersionUID = -1254919484847345489L;
 
     private Integer id;

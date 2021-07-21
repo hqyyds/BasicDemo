@@ -115,7 +115,7 @@ public class SysServiceImpl implements SysService {
     }
 
     @Override
-    public String savePermission(Permission permission) {
+    public ResultObject savePermission(Permission permission) {
         if(StringUtil.isBlank(permission.getCode())){
             String code = getPermissionMaxCode(permission.getParentcode());
             //此父级下没有数据的时候
@@ -134,7 +134,7 @@ public class SysServiceImpl implements SysService {
             permissionDao.saveOrUpdate(op);
             sysController.saveLog(request,1,"修改权限模块","",permission.getCode(),"ass_permission");
         }
-        return ResultObject.newOk("保存成功").toString();
+        return ResultObject.newOk("保存成功");
     }
 
     @Override
@@ -270,7 +270,7 @@ public class SysServiceImpl implements SysService {
             sql+= " and parentcode=?"+(param.size()+1);
             param.add(parentcode);
         }else {
-            sql+= " and parentcode is null";
+            sql+= " and (parentcode is null or parentcode='')";
         }
         Object o = permissionDao.getBySQL(sql,param.toArray());
         return o!=null?o.toString():"";
