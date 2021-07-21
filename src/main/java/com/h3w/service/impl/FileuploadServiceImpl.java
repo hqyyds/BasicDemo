@@ -40,4 +40,16 @@ public class FileuploadServiceImpl implements FileuploadService {
     public void deleteById(Integer id) {
         fileuploadDao.deleteById(id);
     }
+
+    @Override
+    public Fileupload getByMd5(String md5) {
+        List<Fileupload> items = fileuploadDao.getListByHQL("from Fileupload where filemd5=?1",md5);
+        return items.size()>0?items.get(0):null;
+    }
+
+    @Override
+    public Long getCountByMd5(String md5) {
+        Long c = fileuploadDao.countByHql("select count(id) from Fileupload where filemd5=?1",md5);
+        return c;
+    }
 }

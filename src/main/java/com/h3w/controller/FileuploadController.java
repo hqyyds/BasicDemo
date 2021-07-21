@@ -1,75 +1,81 @@
 package com.h3w.controller;
 
 import com.h3w.ResultObject;
-import com.h3w.StaticConstans;
 import com.h3w.entity.Fileupload;
-import com.h3w.exception.CustomException;
+import com.h3w.entity.User;
+import com.h3w.utils.*;
 import com.h3w.service.FileuploadService;
-import com.h3w.utils.ConvertToPdf;
-import com.h3w.utils.DateUtil;
-import com.h3w.utils.FileUtil;
 import com.j256.simplemagic.ContentInfo;
 import com.j256.simplemagic.ContentInfoUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.PDFRenderer;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import javax.annotation.PostConstruct;
-import javax.servlet.ServletException;
+import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.net.URLEncoder;
 import java.sql.Timestamp;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
- *
+ * 文件上传接口
  * @author hyyds
  * @date 2021/6/16
  */
+@Api(value = "上传接口", tags = "文件上传")
 @Controller
 @RequestMapping("/file")
 public class FileuploadController {
     @Autowired
     private FileuploadService fileuploadService;
+    @Autowired
+    private LoginController loginController;
     public static FileuploadController fileuploadController;
     @PostConstruct
     public void init() {
         fileuploadController = this;
         fileuploadController.fileuploadService = this.fileuploadService;
+        fileuploadController.loginController = this.loginController;
     }
-
-    @Value("${system.upload}")
-    public String fileuploadpath;
+    @Value("${system.upload-path}")
+    public String fileBase;
+    public static final String initFileBase = "WEB-INF/upload/";
 
     /**
-     * 单文件上传,返回文件的访问url
+     * 文件上传,返回文件的访问url
      *
      * @param request
      * @return
      * @throws IllegalStateException
      * @throws IOException
      */
+    @ApiOperation("上传文件")
     @ResponseBody
-    @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    @PostMapping(value = "/upload")
     public String uploadFile(HttpServletRequest request) throws IllegalStateException,
-            IOException, JSONException {
-        JSONObject object = new JSONObject();
+            IOException {
+        User user = fileuploadController.loginController.getCurrentUser();
+//        Integer userId = user.id;
         ContentInfoUtil util = new ContentInfoUtil();
         ContentInfo info;
 //        List<String> fileIdList = new ArrayList<String>();
@@ -78,8 +84,13 @@ public class FileuploadController {
 
         String datedir = DateUtil.formatDateToNumber(new Date());
         //文件上传的绝对路径
-        String dirPath = "";
-        String uploadDir = "";
+//        String dirPath = initFileBase + datedir;
+//        String uploadDir = checkDir(request, dirPath);
+        String dirPath = fileBase + datedir;
+        String uploadDir = fileBase+datedir;
+        File f = new File(uploadDir);
+        if (!f.exists())// 如果路径不存在则创建
+            f.mkdirs();
         System.out.println("返回的文件路径："+uploadDir);
 
         // 创建一个通用的多部分解析器
@@ -99,104 +110,91 @@ public class FileuploadController {
                     String originalFileName = file.getOriginalFilename();
                     // 取得当前上传文件的文件大小
                     long filesize = file.getSize();
-                    // 如果名称不为“”,说明该文件存在，否则说明该文件不存在
-                    if (originalFileName.trim() != "") {
-                        String fileId = UUID.randomUUID().toString();
-                        String realName = originalFileName.substring(0,
-                                originalFileName.lastIndexOf("."));
-                        String extName = originalFileName.substring(
-                                realName.length(), originalFileName.length());
-
-                        String dirname = extName.substring(1);
-                        dirPath += fileuploadpath+datedir;
-                        uploadDir = checkDir(request, dirPath);
-                        // 重命名上传后的文件名
-                        String fileName = fileId + "-" + new Date().getTime();
-                        // 定义上传路径
-                        File localFile = new File(uploadDir, fileName + extName);
-                        file.transferTo(localFile);
-
-                        info = util.findMatch(localFile);
-                        if (info != null)
-                            mimeType = info.getMimeType();
-                        if (mimeType == null)
-                            mimeType = "application/octet-stream";
-
-                        if(mimeType.toString().length()<=50){
-                            fileUpload.setFiletype(mimeType.toString());
+                    //上传文件是否已存在
+                    boolean haveold = false;
+                    String filemd5 = MD5Util.getFileMD5String(file);
+                    Fileupload uploadedfile = fileuploadController.fileuploadService.getByMd5(filemd5);
+                    if(uploadedfile != null){
+                        String realPath = "";
+                        if(StringUtil.matchReg(uploadedfile.getFilepath(),"^WEB-INF/")){
+                            realPath = checkDirDown(request,uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
+                        }else {
+                            realPath = checkDirDown2(uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
                         }
-                        fileUpload.setFilename(fileName);
-                        fileUpload.setRealname(realName);
-                        fileUpload.setFileExtname(extName);
-                        fileUpload.setFilepath(dirPath);
-                        fileUpload.setFilesize(filesize);
-                        fileUpload.setUploadtime(new Timestamp(
-                                new Date().getTime()));
-                        try {
-                            fileuploadController.fileuploadService.insertSelect(fileUpload);
-
-                            if(extName.equals(".doc")||extName.equals(".docx")||extName.equals(".ppt")||extName.equals(".pptx")){
-                                String realPath = uploadDir;//获取文件上传后的保存绝对路径
-                                ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
-                                singleThreadExecutor.execute(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        System.out.println("执行线程：");
-                                        try {
-                                            System.out.println("开始转换pdf>>>>>>");
-                                            String source = realPath+"/"+fileUpload.getFilename() + fileUpload.getFileExtname();
-                                            String target = realPath+"/"+fileUpload.getFilename() + ".pdf";
-
-                                            boolean rlt = ConvertToPdf.convert2PDF(source, target);
-                                            if (rlt) {
-                                                fileUpload.setTopdf(Fileupload.TOPDF_ED);
-                                                fileuploadController.fileuploadService.updateSelect(fileUpload);
-                                            }
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-
-                                    }
-                                });
-                                singleThreadExecutor.shutdown();
-                                System.out.println("关闭线程:"+new Date(System.nanoTime()));
-                                while (true) {
-                                    if (singleThreadExecutor.isTerminated()) {
-                                        System.out.println("线程结束了！");
-                                        break;
-                                    }
-                                    Thread.sleep(200);
-                                }
-                            }
-                            String fileurl = getUrlPath(request,realName,fileName);
-                            object.put("fileid",fileUpload.getId());
-                            object.put("filename",fileName);
-                            object.put("ext",extName);
-                            object.put("fileurl",fileurl);
-                            object.put("realname",realName+extName);
-                            return ResultObject.newJSONData(object).toString();
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        String pic_path=realPath+"/"+uploadedfile.getFilename()+uploadedfile.getFileExtname();//图片路径
+                        File ofile = new File(pic_path);
+                        if (ofile.exists()) {//如果路径存在
+                            haveold = true;
                         }
                     }
+                    //如果上传文件已存在，直接复制
+                    if(haveold){
+                        String realName = originalFileName.substring(0,
+                                originalFileName.lastIndexOf("."));
+                        BeanUtil.beanCopy(uploadedfile,fileUpload);
+                        fileUpload.setRealname(realName);
+                        fileUpload.setUploadtime(new Date());
+                        fileUpload.setUserid(user.getId());
+                        fileuploadController.fileuploadService.insertSelect(fileUpload);
+                    }else {
+                        // 如果名称不为“”,说明该文件存在，否则说明该文件不存在
+                        if (originalFileName.trim() != "") {
+                            String fileId = UUID.randomUUID().toString();
+                            String realName = originalFileName.substring(0,
+                                    originalFileName.lastIndexOf("."));
+                            String extName = originalFileName.substring(
+                                    realName.length(), originalFileName.length());
+                            // 重命名上传后的文件名
+                            String fileName = fileId + "-" + new Date().getTime();
+                            // 定义上传路径
+                            File localFile = new File(uploadDir, fileName + extName);
+                            file.transferTo(localFile);
+                            System.out.println(localFile.getName());
+
+                            info = util.findMatch(localFile);
+                            if (info != null)
+                                mimeType = info.getMimeType();
+                            if (mimeType == null)
+                                mimeType = "application/octet-stream";
+
+                            fileUpload.setFiletype(mimeType.toString());
+                            fileUpload.setFilename(fileName);
+                            fileUpload.setRealname(realName);
+                            fileUpload.setFileExtname(extName);
+                            fileUpload.setFilepath(dirPath);
+                            fileUpload.setFilesize(filesize);
+                            fileUpload.setUploadtime(new Timestamp(
+                                    new Date().getTime()));
+                            fileUpload.setUserid(user.getId());
+                            fileuploadController.fileuploadService.insertSelect(fileUpload);
+                        }
+                    }
+                    JSONObject fobj = new JSONObject();
+                    fobj.put("id",fileUpload.getId());
+                    fobj.put("url",getUrlPath(request,fileUpload.getId()));
+                    fobj.put("ext",fileUpload.getFileExtname());
+                    return ResultObject.newJSONData(fobj).toString();
                 }
             }
-            return ResultObject.newError("上传错误！").toString();
         } else {
-            return null;
+            return ResultObject.newError("未找到上传文件").toString();
         }
+        return ResultObject.newError("上传错误").toString();
     }
 
-
     /**
-     * 多文件上传
+     * 多图片上传
      * @param request
      * @return
      * @throws IllegalStateException
      * @throws IOException
      */
+    @ApiOperation("多文件上传")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "fileids文件id， fileurls文件地址"),
+    })
     @ResponseBody
-    @RequestMapping(value = "/upload/files", method = RequestMethod.POST)
+    @PostMapping(value = "/upload/files")
     public String uploadFileData(HttpServletRequest request) throws IllegalStateException,
             IOException, JSONException {
         Integer failnum = 0;
@@ -204,7 +202,8 @@ public class FileuploadController {
         JSONObject object = new JSONObject();
         List<Integer> fileids = new ArrayList<>();
         List<String> fileurls = new ArrayList<>();
-//        ShiroUser user = (ShiroUser) SecurityUtils.getSubject().getPrincipal();
+        JSONArray files = new JSONArray();
+        User user = fileuploadController.loginController.getCurrentUser();
         ContentInfoUtil util = new ContentInfoUtil();
         ContentInfo info;
 //        List<String> fileIdList = new ArrayList<String>();
@@ -212,9 +211,14 @@ public class FileuploadController {
         String datedir = DateUtil.formatDateToNumber(new Date());
         //文件上传的绝对路径
         String dirPath = "";
-        dirPath += fileuploadpath+datedir;
-        String uploadDir = checkDir(request, dirPath);
-        System.out.println("返回的文件路径："+uploadDir);
+        String uploadDir = "";
+        if(StringUtil.isNotBlank(fileBase)){
+            dirPath = fileBase + datedir;
+            uploadDir = checkDir2(dirPath);
+        }else {
+            dirPath = initFileBase + datedir;
+            uploadDir = checkDir(request, dirPath);
+        }
 
         // 创建一个通用的多部分解析器
         CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(
@@ -235,44 +239,84 @@ public class FileuploadController {
                     String originalFileName = file.getOriginalFilename();
                     // 取得当前上传文件的文件大小
                     long filesize = file.getSize();
-                    // 如果名称不为“”,说明该文件存在，否则说明该文件不存在
-                    if (originalFileName.trim() != "") {
-                        Fileupload fileUpload = new Fileupload();
-                        String fileId = UUID.randomUUID().toString();
+                    //上传文件是否已存在
+                    boolean haveold = false;
+                    String filemd5 = MD5Util.getFileMD5String(file);
+                    Fileupload uploadedfile = fileuploadController.fileuploadService.getByMd5(filemd5);
+                    if(uploadedfile != null){
+                        String realPath = "";
+                        if(StringUtil.matchReg(uploadedfile.getFilepath(),"^WEB-INF/")){
+                            realPath = checkDirDown(request,uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
+                        }else {
+                            realPath = checkDirDown2(uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
+                        }
+                        String pic_path=realPath+"/"+uploadedfile.getFilename()+uploadedfile.getFileExtname();//图片路径
+                        File ofile = new File(pic_path);
+                        if (ofile.exists()) {//如果路径存在
+                            haveold = true;
+                        }
+                    }
+                    //如果上传文件已存在，直接复制
+                    if(haveold){
                         String realName = originalFileName.substring(0,
                                 originalFileName.lastIndexOf("."));
-                        String extName = originalFileName.substring(
-                                realName.length(), originalFileName.length());
-                        // 重命名上传后的文件名
-                        String fileName = fileId + "-" + new Date().getTime();
-                        // 定义上传路径
-                        File localFile = new File(uploadDir, fileName + extName);
-                        file.transferTo(localFile);
-                        System.out.println("上传后的文件名："+localFile.getName());
+                        copyFileupload(uploadedfile,realName,fileids,fileurls,files,request,user);
+                        successnum++;
+                    } else {
+                        // 如果名称不为“”,说明该文件存在，否则说明该文件不存在
+                        if (originalFileName.trim() != "") {
+                            String fileId = UUID.randomUUID().toString();
+                            String realName = originalFileName.substring(0,
+                                    originalFileName.lastIndexOf("."));
+                            String extName = originalFileName.substring(
+                                    realName.length(), originalFileName.length());
+                            // 重命名上传后的文件名
+                            String fileName = fileId + "-" + new Date().getTime();
+                            // 定义上传路径
+                            File localFile = new File(uploadDir, fileName + extName);
+                            try {
+                                file.transferTo(localFile);
+                            } catch (Exception e) {
+                                object.put("statusCode", 300);
+                                object.put("message", "无效的上传路径！");
+                                return object.toString();
+                            }
+                            System.out.println("上传后的文件名：" + localFile.getName());
 
-                        info = util.findMatch(localFile);
-                        if (info != null)
-                            mimeType = info.getMimeType();
-                        if (mimeType == null)
-                            mimeType = "application/octet-stream";
+                            info = util.findMatch(localFile);
+                            if (info != null)
+                                mimeType = info.getMimeType();
+                            if (mimeType == null)
+                                mimeType = "application/octet-stream";
 
-                        fileUpload.setFiletype(mimeType.toString());
-                        fileUpload.setFilename(fileName);
-                        fileUpload.setRealname(realName);
-                        fileUpload.setFileExtname(extName);
-                        fileUpload.setFilepath(dirPath);
-                        fileUpload.setFilesize(filesize);
-                        fileUpload.setUploadtime(new Timestamp(
-                                new Date().getTime()));
-
-                        try {
-                            fileuploadController.fileuploadService.insertSelect(fileUpload);
-
-                            fileids.add(fileUpload.getId());
-                            fileurls.add(getUrlPath(request,realName,fileName));
-                            successnum++;
-                        } catch (Exception e) {
-                            failnum++;
+                            if (extName.equals(".pdf")) {
+                                pdf2Image(localFile, dirPath, 300, 10, fileids, fileurls,files, request, user);
+                            }
+                            Fileupload fileUpload = new Fileupload();
+                            fileUpload.setFiletype(mimeType.toString());
+                            fileUpload.setFilename(fileName);
+                            fileUpload.setRealname(realName);
+                            fileUpload.setFileExtname(extName);
+                            fileUpload.setFilepath(dirPath);
+                            fileUpload.setFilesize(filesize);
+                            fileUpload.setUploadtime(new Date());
+                            fileUpload.setUserid(user.getId());
+                            fileUpload.setFilemd5(filemd5);
+                            try {
+                                fileuploadController.fileuploadService.insertSelect(fileUpload);
+                                if (!extName.equals(".pdf")) {
+                                    fileids.add(fileUpload.getId());
+                                    fileurls.add(getUrlPath(request, fileUpload.getId()));
+                                    JSONObject fobj = new JSONObject();
+                                    fobj.put("id",fileUpload.getId());
+                                    fobj.put("url",getUrlPath(request,fileUpload.getId()));
+                                    fobj.put("ext",extName);
+                                    files.put(fobj);
+                                }
+                                successnum++;
+                            } catch (Exception e) {
+                                failnum++;
+                            }
                         }
                     }
                 }
@@ -281,6 +325,7 @@ public class FileuploadController {
             object.put("message","已成功上传"+successnum+"张图片，失败数"+failnum);
             object.put("fileids",fileids);
             object.put("fileurls",fileurls);
+            object.put("files",files);
             return object.toString();
         } else {
             object.put("statusCode",300);
@@ -288,198 +333,28 @@ public class FileuploadController {
             return object.toString();
         }
     }
-
-
     /**
-     * 上传文件并转为PDF(由于转pdf异常，已经去掉转为pdf)
-     * @param request
-     * @return
-     * @throws IllegalStateException
-     * @throws IOException
-     * @throws JSONException
-     */
-    @ResponseBody
-    @RequestMapping(value = "/upload/topdf", method = RequestMethod.POST)
-    public String uploadFileToPdf(HttpServletRequest request) throws IllegalStateException,
-            IOException, JSONException {
-//        ResultObject object = new ResultObject();
-        JSONObject object = new JSONObject();
-        ContentInfoUtil util = new ContentInfoUtil();
-        ContentInfo info;
-        String mimeType = null;
-        Fileupload fileUpload = new Fileupload();
-
-        String datedir = DateUtil.formatDateToNumber(new Date());
-        //文件上传的绝对路径
-        String dirPath = "";
-        String uploadDir = "";
-        System.out.println("返回的文件路径："+uploadDir);
-
-        // 创建一个通用的多部分解析器
-        CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(
-                request.getSession().getServletContext());
-        // 判断 request 是否有文件上传,即多部分请求
-        if (multipartResolver.isMultipart(request)) {
-            // 转换成多部分request
-            MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest) request;
-            // 取得request中的所有文件名
-            Iterator<String> iter = multiRequest.getFileNames();
-            while (iter.hasNext()) {
-                // 取得上传文件
-                MultipartFile file = multiRequest.getFile(iter.next());
-                if (file != null) {
-                    // 取得当前上传文件的文件名称
-                    String originalFileName = file.getOriginalFilename();
-                    // 取得当前上传文件的文件大小
-                    long filesize = file.getSize();
-                    // 如果名称不为“”,说明该文件存在，否则说明该文件不存在
-                    if (originalFileName.trim() != "") {
-                        String fileId = UUID.randomUUID().toString();
-                        String realName = originalFileName.substring(0,
-                                originalFileName.lastIndexOf("."));
-                        String extName = originalFileName.substring(
-                                realName.length(), originalFileName.length());
-
-                        String dirname = extName.substring(1);
-                        dirPath += fileuploadpath+dirname+"/"+datedir;
-                        uploadDir = checkDir(request, dirPath);
-                        // 重命名上传后的文件名
-                        String fileName = fileId + "-" + new Date().getTime();
-                        // 定义上传路径
-                        File localFile = new File(uploadDir, fileName + extName);
-                        file.transferTo(localFile);
-
-                        info = util.findMatch(localFile);
-                        if (info != null)
-                            mimeType = info.getMimeType();
-                        if (mimeType == null)
-                            mimeType = "application/octet-stream";
-
-                        if(mimeType.toString().length()<=50){
-                            fileUpload.setFiletype(mimeType.toString());
-                        }
-                        fileUpload.setFilename(fileName);
-                        fileUpload.setRealname(realName);
-                        fileUpload.setFileExtname(extName);
-                        fileUpload.setFilepath(dirPath);
-                        fileUpload.setFilesize(filesize);
-                        fileUpload.setUploadtime(new Timestamp(
-                                new Date().getTime()));
-                        try {
-                            fileuploadController.fileuploadService.insertSelect(fileUpload);
-
-                            String fileurl = getUrlPath(request,realName,fileName);
-                            object.put("rel",fileUpload.getId());
-                            object.put("filename",fileName);
-                            object.put("statusCode",ResultObject.STATUS_CODE_SUCCESS);
-                            object.put("fileurl",fileurl);
-                            object.put("message",realName+extName);
-                            return object.toString();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-            object.put("message","上传错误！");
-            object.put("statusCode",ResultObject.STATUS_CODE_FAILURE);
-            return object.toString();
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * 文件下载/查看（pdf直接可查看）
-     * @param fileid 文件的id
-     * @param request
-     * @param response
-     * @return
-     * @throws JSONException
-     * @throws ServletException
-     * @throws IOException
-     */
-    @ResponseBody
-    @RequestMapping("/get/{realname}")
-    public void getFile(String fileid,HttpServletRequest request,HttpServletResponse response) throws JSONException, ServletException, IOException {
-        JSONObject json = new JSONObject();
-        Fileupload uploadedfile=fileuploadService.getByFilename(fileid);
-        if(uploadedfile == null){
-            throw new CustomException(300,"未找到文件！");
-        }
-//        String filepath = "/"+uploadedfile.getFilepath()+ "/"+uploadedfile.getFilename();
-        String filepath = "/"+uploadedfile.getFilename();
-        String realPath = checkDirDown(request,uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
-        //如果已经转为pdf,就加载pdf
-        if(StaticConstans.STATUS_1.equals(uploadedfile.getTopdf())){
-            filepath+= ".pdf";
-        }else {
-            String extName = uploadedfile.getFileExtname();
-            if(extName.equals(".doc")||extName.equals(".docx")||extName.equals(".ppt")||extName.equals(".pptx")){
-                String source = realPath+"/"+uploadedfile.getFilename() + uploadedfile.getFileExtname();
-                String target = realPath+"/"+uploadedfile.getFilename() + ".pdf";
-//                    File localFile = new File(realPath, uploadedfile.getFilename() + uploadedfile.getFileExtname());
-//                    File pdfFile = new File(realPath, uploadedfile.getFilename() + ".pdf");
-
-                boolean rlt = ConvertToPdf.convert2PDF(source, target);
-                if (rlt) {
-                    uploadedfile.setTopdf(StaticConstans.STATUS_1);
-                    fileuploadController.fileuploadService.updateSelect(uploadedfile);
-                    filepath += ".pdf";
-                } else {
-                    filepath += extName;
-                }
-
-            }else {
-                filepath += extName;
-            }
-        }
-
-        //转发到文档的地址
-//        request.getRequestDispatcher(filepath).forward(request,response);
-
-        String pic_path=realPath+filepath;//图片路径
-        File file = new File(pic_path);
-        if (file.exists()) {//如果路径存在
-            FileInputStream fileInputStream;
-            try {
-                response.setHeader("Pragma", "no-cache");
-                response.setHeader("Cache-Control", "no-cache");
-                response.setDateHeader("Expires", 0);
-//                response.setContentType(uploadedfile.getFiletype()); // 设置返回的文件类型
-//                response.setHeader("content-disposition", "attachment;filename=" + URLEncoder.encode(uploadedfile.getRealname()+uploadedfile.getFileExtname(), "UTF-8"));
-                response.addHeader("Content-Disposition", "attachment;filename=" + new String((uploadedfile.getRealname()+uploadedfile.getFileExtname()).getBytes("GB2312"),"ISO-8859-1"));
-                response.addHeader("X-Frame-Options","ALLOW-FROM");
-                fileInputStream = new FileInputStream(pic_path);
-                int i = fileInputStream.available(); // 得到文件大小
-                byte data[] = new byte[i];
-                fileInputStream.read(data); // 读数据
-                fileInputStream.close();
-                ServletOutputStream outputStream = response.getOutputStream(); // 得到向客户端输出二进制数据的对象
-                outputStream.write(data); // 输出数据
-                outputStream.close();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    /**
-     * 文件下载
-     * @param fileid
+     * 文件下载和查看
+     * @param id
      * @param request
      * @param response
      */
-    @ResponseBody
-    @RequestMapping("/down/{fileid}")
-    public void getDown(@PathVariable String fileid,HttpServletRequest request,HttpServletResponse response) {
-        Fileupload uploadedfile=fileuploadService.getByFilename(fileid);
+    @ApiOperation("文件下载和查看")
+    @GetMapping(value = "/down/{id}")
+    public void getFile(@PathVariable Integer id, HttpServletRequest request, HttpServletResponse response) {
+        Fileupload uploadedfile=fileuploadService.getById(id);
         if(uploadedfile == null){
             System.out.println("未找到文件！");
         }
-        String realPath = checkDirDown(request,uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
+        String realPath = "";
+        if(StringUtil.matchReg(uploadedfile.getFilepath(),"^WEB-INF/")){
+            realPath = checkDirDown(request,uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
+        }else {
+            realPath = checkDirDown2(uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
+        }
+//        realPath = checkDirDown(request,uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
         String pic_path=realPath+"/"+uploadedfile.getFilename()+uploadedfile.getFileExtname();//图片路径
+//        System.out.println("返回的文件路径："+pic_path);
         File file = new File(pic_path);
         if (file.exists()) {//如果路径存在
             FileInputStream fileInputStream;
@@ -488,8 +363,7 @@ public class FileuploadController {
                 response.setHeader("Cache-Control", "no-cache");
                 response.setDateHeader("Expires", 0);
                 response.setContentType(uploadedfile.getFiletype()); // 设置返回的文件类型
-//                response.setHeader("content-disposition", "attachment;filename=" + URLEncoder.encode(uploadedfile.getRealname()+uploadedfile.getFileExtname(), "UTF-8"));
-                response.addHeader("Content-Disposition", "attachment;filename=" + new String((uploadedfile.getRealname()+uploadedfile.getFileExtname()).getBytes("GB2312"),"ISO-8859-1"));
+                response.setHeader("content-disposition", "attachment;filename=" + URLEncoder.encode(uploadedfile.getRealname()+uploadedfile.getFileExtname(), "UTF-8"));
                 fileInputStream = new FileInputStream(pic_path);
                 int i = fileInputStream.available(); // 得到文件大小
                 byte data[] = new byte[i];
@@ -504,153 +378,173 @@ public class FileuploadController {
             }
         }
     }
-    public String getpdfpath(Fileupload uploadedfile,String realPath,String pic_path){
-        if(StaticConstans.STATUS_1.equals(uploadedfile.getTopdf())){
-            pic_path+= ".pdf";
-        }else {
-            String extName = uploadedfile.getFileExtname();
-            if(extName.equals(".doc")||extName.equals(".docx")||extName.equals(".ppt")||extName.equals(".pptx")){
-                try {
 
-                    String source = realPath+"/"+uploadedfile.getFilename() + uploadedfile.getFileExtname();
-                    String target = realPath+"/"+uploadedfile.getFilename() + ".pdf";
-//                    File localFile = new File(realPath, uploadedfile.getFilename() + uploadedfile.getFileExtname());
-//                    File pdfFile = new File(realPath, uploadedfile.getFilename() + ".pdf");
 
-                    boolean rlt = ConvertToPdf.convert2PDF(source, target);
-                    if (rlt) {
-                        uploadedfile.setTopdf(StaticConstans.STATUS_1);
-                        fileuploadController.fileuploadService.updateSelect(uploadedfile);
-                        pic_path += ".pdf";
-                    } else {
-                        pic_path += extName;
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
-//                    throw new CustomException("转换pdf异常");
-                    pic_path += extName;
+    public static void pdf2Image(File file, String dstImgFolder, int dpi,int flag,List<Integer> fileids,List<String> fileurls,JSONArray files,HttpServletRequest request,User user) {
+        PDDocument pdDocument;
+        try {
+            String imgPDFPath = file.getParent();
+            int dot = file.getName().lastIndexOf('.');
+            String imagePDFName = file.getName().substring(0, dot);
+
+            if (createDirectory(imgPDFPath)) {
+                pdDocument = PDDocument.load(file);
+
+                PDFRenderer renderer = new PDFRenderer(pdDocument);
+                int pages = pdDocument.getNumberOfPages();
+//                if(flag > 0) {//大于0则打印具体页数
+//                    if(flag<pages) {
+//                        pages = flag;
+//                    }
+//                }
+
+                StringBuffer imgFilePath = null;
+                for (int i = 0; i < pages; i++) {
+                    String imageName = imagePDFName;
+                    String imgFilePathPrefix = imgPDFPath+File.separator + imagePDFName;
+                    imgFilePath = new StringBuffer();
+                    imgFilePath.append(imgFilePathPrefix);
+                    imageName+= "-"+String.valueOf(i + 1);
+                    imgFilePath.append("-");
+                    imgFilePath.append(String.valueOf(i + 1));
+                    imgFilePath.append(".png");
+                    File dstFile = new File(imgFilePath.toString());
+                    BufferedImage image = renderer.renderImageWithDPI(i, dpi);
+                    ImageIO.write(image, "png", dstFile);
+
+                    Fileupload fileUpload = new Fileupload();
+                    fileUpload.setFiletype("image/png");
+                    fileUpload.setRealname(imageName);
+                    fileUpload.setFilename(imageName);
+                    fileUpload.setFileExtname(".png");
+                    fileUpload.setFilepath(dstImgFolder);
+                    fileUpload.setFilesize(dstFile.length());
+                    fileUpload.setUploadtime(new Timestamp(
+                            new Date().getTime()));
+                    fileUpload.setUserid(user.getId());
+                    fileuploadController.fileuploadService.insertSelect(fileUpload);
+                    fileids.add(fileUpload.getId());
+                    fileurls.add(getUrlPath(request,fileUpload.getId()));
+                    JSONObject fobj = new JSONObject();
+                    fobj.put("id",fileUpload.getId());
+                    fobj.put("url",getUrlPath(request,fileUpload.getId()));
+                    fobj.put("ext",fileUpload.getFileExtname());
+                    files.put(fobj);
                 }
-            }else {
-                pic_path += extName;
+                System.out.println("成功");
+            } else {
+                System.out.println("错误:" + "创建" + imgPDFPath + "失败");
             }
+
+        } catch (Exception e) {
+            System.out.println("Exception");
+            e.printStackTrace();
         }
-        return pic_path;
+    }
+
+    public static void copyFileupload(Fileupload uploadedfile,String realName,List<Integer> fileids,List<String> fileurls,JSONArray files,HttpServletRequest request,User user){
+        Fileupload fileUpload = new Fileupload();
+        BeanUtil.beanCopy(uploadedfile,fileUpload);
+        fileUpload.setRealname(realName);
+        fileUpload.setUploadtime(new Date());
+        fileUpload.setUserid(user.getId());
+        fileuploadController.fileuploadService.insertSelect(fileUpload);
+        fileids.add(fileUpload.getId());
+        fileurls.add(getUrlPath(request,fileUpload.getId()));
+        JSONObject fobj = new JSONObject();
+        fobj.put("id",fileUpload.getId());
+        fobj.put("url",getUrlPath(request,fileUpload.getId()));
+        fobj.put("ext",fileUpload.getFileExtname());
+        files.put(fobj);
     }
 
     /**
-     * 获取文件的直接访问路径
-     * @param filename
-     * @param request
-     * @return
-     * @throws JSONException
+     * 获取并保存EChart图片到本地.
+     * @param picInfo 图片信息
+     * @param imageName 图片名字
      */
+    @ApiOperation("获取并保存EChart图片到本地")
+    @PostMapping(value="/saveChartImage")
     @ResponseBody
-    @RequestMapping("/getfilepath/{filename}")
-    public String getFilePath(@PathVariable String filename,HttpServletRequest request) throws JSONException {
-        JSONObject json = new JSONObject();
-        Fileupload uploadedfile=fileuploadService.getByFilename(filename);
-        if(uploadedfile == null){
-            System.out.println("未找到文件！");
-            json.put("statusCode",300);
-            json.put("message","未找到文件！");
-            return json.toString();
+    private void saveChartImage(HttpServletRequest request,String picInfo, @RequestParam("imageName") String imageName) {
+        if (StringUtil.isBlank(picInfo)) {
+            System.out.println("picInfo为空,未从前台获取到base64图片信息!");
+            return;
         }
-        String fileurl = getUrlPath(request,uploadedfile.getRealname(),uploadedfile.getFilename());
-        String extName = uploadedfile.getFileExtname();
-        if(extName.equals(".mp4")||extName.equals(".avi")){
-            String realPath = checkDirDown(request,uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
-            String pic_path = getFilePath(request,uploadedfile.getFilepath(),uploadedfile.getFilename());
-            fileurl = getpdfpath(uploadedfile,realPath,pic_path);
-        }
-
-//        File file = new File(fileurl);
-//        if (!file.exists()){
-//            json.put("message","未找到该文件");
-//        }
-        json.put("statusCode",200);
-        json.put("path",fileurl);
-        return json.toString();
-    }
-
-    public static String getFileuploadAbsolutepath(Integer fileid,HttpServletRequest request) throws JSONException {
-        Fileupload uploadedfile=fileuploadController.fileuploadService.getById(fileid);
-        if(uploadedfile == null){
-            return "";
-        }
-        String pic_path = getFilePath(request,uploadedfile.getFilepath(),uploadedfile.getFilename()+uploadedfile.getFileExtname());
-        return pic_path;
-    }
-
-    public static String getFileuploadAbsolutepath(String filename,HttpServletRequest request) throws JSONException {
-        Fileupload uploadedfile=fileuploadController.fileuploadService.getByFilename(filename);
-        if(uploadedfile == null){
-            return "";
-        }
-        String pic_path = getFilePath(request,uploadedfile.getFilepath(),uploadedfile.getFilename()+uploadedfile.getFileExtname());
-        return pic_path;
-    }
-
-    public static String getFileuploadRelativepath(String filename,HttpServletRequest request) throws JSONException {
-        Fileupload uploadedfile=fileuploadController.fileuploadService.getByFilename(filename);
-        if(uploadedfile == null){
-            return "";
-        }
-        String pic_path = uploadedfile.getFilepath()+ "/"+uploadedfile.getFilename()+uploadedfile.getFileExtname();
-        return pic_path;
+//      String imagePath=System.getProperty("evan.webapp")+"/WEB-INF";
+//      System.out.println(System.getProperty("evan.webapp"));//获取服务器根路径，成功，不过需要在web.xml中进行一些配置
+        //获取服务器根路径到/static/images/的目录路径
+        //文件上传的绝对路径
+        String dirPath = initFileBase+"chart/";
+        String uploadDir = checkDir(request, dirPath);
+        System.out.println("返回的文件路径："+uploadDir);
+//        String imagePath= ContextLoader.getCurrentWebApplicationContext().getServletContext().getRealPath("/static/images/")+imageName;
+        // 传递过程中  "+" 变为了 " ".
+        String newPicInfo = picInfo.replaceAll(" ", "+");
+        decodeBase64(newPicInfo, new File(uploadDir+imageName));
+        //log.warn("从echarts中生成图片的的路径为:{}", picPath);
     }
 
     /**
-     * 文件删除
-     * @param filename 文件的名称id
-     * @param request
-     * @return
+     * 解析Base64位信息并输出到某个目录下面.
+     * @param base64Info base64串
+     * @param picPath 生成的文件路径
+     * @return 文件地址
      */
-    @RequestMapping("/del/{filename}")
+    private File decodeBase64(String base64Info, File picPath) {
+        if (StringUtils.isEmpty(base64Info)) {
+            return null;
+        }
+
+        // 数据中：data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABI4AAAEsCAYAAAClh/jbAAA ...  在"base64,"之后的才是图片信息
+        String[] arr = base64Info.split("base64,");
+
+        // 将图片输出到系统某目录.
+        OutputStream out = null;
+        try {
+            // 使用了Apache commons codec的包来解析Base64
+            byte[] buffer = org.apache.commons.codec.binary.Base64.decodeBase64(arr[1]);
+            out = new FileOutputStream(picPath);
+            out.write(buffer);
+        } catch (IOException e) {
+            e.printStackTrace();
+            //log.error("解析Base64图片信息并保存到某目录下出错!", e);
+        } finally {
+            IOUtils.closeQuietly(out);
+        }
+
+        return picPath;
+    }
+
+    @ApiOperation("删除上传文件")
+    @GetMapping("/del/{fid}")
     @ResponseBody
-    public ResultObject deleteFile(@PathVariable Integer filename, HttpServletRequest request){
-        Fileupload uploadedfile=fileuploadService.getById(filename);
-        if(uploadedfile == null){
-            System.out.println("未找到文件！");
-            return ResultObject.newError("未找到文件");
-        }else {
-            fileuploadService.deleteById(uploadedfile.getId());
-        }
-        String realPath = "";
-        realPath = checkDirDown(request,uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
-        String pic_path=realPath+"/"+uploadedfile.getFilename()+uploadedfile.getFileExtname();//图片路径
-        boolean re = FileUtil.deleteFile(pic_path);
-        if(re){
-            return ResultObject.newOk("删除成功！");
-        }else {
-            return ResultObject.newError("删除失败！");
-        }
-    }
-
-    public static boolean deleteFilename(String filename,HttpServletRequest request){
-        Fileupload uploadedfile=fileuploadController.fileuploadService.getByFilename(filename);
-        if(uploadedfile == null){
-            System.out.println("未找到文件！");
-        }else {
-            fileuploadController.fileuploadService.deleteById(uploadedfile.getId());
-        }
-        String realPath = "";
-        realPath = checkDirDown(request,uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
-        String pic_path=realPath+"/"+uploadedfile.getFilename()+uploadedfile.getFileExtname();//图片路径
-//        System.out.println("返回的文件路径："+pic_path);
-        return FileUtil.deleteFile(pic_path);
-    }
-
-    public static boolean deleteFileId(Integer fid,HttpServletRequest request){
+    public static ResultObject deleteFile(@PathVariable Integer fid,HttpServletRequest request){
         Fileupload uploadedfile=fileuploadController.fileuploadService.getById(fid);
         if(uploadedfile == null){
             System.out.println("未找到文件！");
-        }else {
-            fileuploadController.fileuploadService.deleteById(uploadedfile.getId());
+            return ResultObject.newError("未找到文件！");
         }
         String realPath = "";
-        realPath = checkDirDown(request,uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
-        String pic_path=realPath+"/"+uploadedfile.getFilename()+uploadedfile.getFileExtname();//图片路径
-        return FileUtil.deleteFile(pic_path);
+        if(StringUtil.matchReg(uploadedfile.getFilepath(),"^WEB-INF/")){
+            realPath = checkDirDown(request,uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
+        }else {
+            realPath = checkDirDown2(uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
+        }
+        String pic_path=realPath+"/"+uploadedfile.getFilename()+uploadedfile.getFileExtname();//图片路径\
+        //文件是单独使用就路径删除
+        Long c = fileuploadController.fileuploadService.getCountByMd5(uploadedfile.getFilemd5());
+        if(c<2){
+            FileUtil.deleteFile(pic_path);
+        }
+        fileuploadController.fileuploadService.deleteById(fid);
+        return ResultObject.newOk("删除成功！");
+//        if(FileUtil.deleteFile(pic_path)){
+//            fileuploadController.fileuploadService.deleteById(fid);
+//            return ResultObject.newOk("删除成功！");
+//        }else {
+//            return ResultObject.newError("删除失败，文件不存在！");
+//        }
     }
 
     /**
@@ -663,11 +557,20 @@ public class FileuploadController {
 //        System.out.println("路径："+dirPath);
 //        System.out.println("项目路径："+ request.getSession().getServletContext().getRealPath(""));
         String realPath = request.getSession().getServletContext().getRealPath("")+dirPath; // 获取文件上传后的保存绝对路径
-//        System.out.println("获取文件上传后的保存绝对路径："+realPath);
+        System.out.println("获取文件上传后的保存绝对路径："+realPath);
         File file = new File(realPath);
         if (!file.exists())// 如果路径不存在则创建
             file.mkdirs();
         return realPath;
+    }
+
+    public static String checkDir2(String uploadDir){
+        System.out.println("获取文件上传后的保存绝对路径："+uploadDir);
+        File f = new File(uploadDir);
+        if (!f.exists())// 如果路径不存在则创建
+            f.mkdirs();
+//        System.out.println("返回的文件路径："+uploadDir);
+        return uploadDir;
     }
 
     public static String checkDirDown(HttpServletRequest request, String dir) {
@@ -680,29 +583,28 @@ public class FileuploadController {
         return realPath;
     }
 
+    public static String checkDirDown2(String dirPath) {
+        String realPath = dirPath;// 获取文件上传后的保存绝对路径
+//        System.out.println("获取文件上传后的保存绝对路径："+realPath);
+        File file = new File(realPath);
+        if (!file.exists())// 如果路径不存在则创建
+            file.mkdirs();
+        return realPath;
+    }
 
-    //拼接文件下载和查看的链接
-    public static String getUrlPath(HttpServletRequest request,String realname,String filename){
+    public static String getUrlPath(HttpServletRequest request,Integer fid){
         String path = request.getContextPath();
         String urlpath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
-        urlpath+= "file/get/"+realname+"?fileid="+ filename;
+        urlpath+= "file/img/"+ fid;
         return urlpath;
     }
 
-    //获取文件下载链接
-    public static String getDownUrl(HttpServletRequest request,String realname,String filename){
-        String path = request.getContextPath();
-        String urlpath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
-//        urlpath+= "file/down/"+realname+"?fileid="+ filename;
-        urlpath+= "file/down/"+ filename+"?name="+realname;
-        return urlpath;
-    }
-
-    //拼接文件在服务器上的绝对路径
-    public static String getFilePath(HttpServletRequest request,String filepath,String filename){
-        String path = request.getContextPath();
-        String urlpath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
-        urlpath+= filepath + "/"+filename;
-        return urlpath;
+    private static boolean createDirectory(String folder) {
+        File dir = new File(folder);
+        if (dir.exists()) {
+            return true;
+        } else {
+            return dir.mkdirs();
+        }
     }
 }

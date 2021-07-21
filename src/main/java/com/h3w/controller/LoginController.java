@@ -9,6 +9,7 @@ import com.h3w.entity.User;
 import com.h3w.service.SysService;
 import com.h3w.service.UserService;
 import com.h3w.utils.RedisUtil;
+import io.swagger.annotations.Api;
 import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,12 +35,12 @@ import java.util.ResourceBundle;
  * @author hyyds
  * @date 2021/6/16
  */
+@Api(value = "用户登录接口", tags = "用户登录接口")
 @RestController
 public class LoginController {
 
 	Logger log = LoggerFactory.getLogger(LoginController.class);
 	public static ResourceBundle resource = ResourceBundle.getBundle("constant");
-	public static final String EQUIPMENT_MENT = resource.getString("equipment.url");
 
 	@Value("${tokentime:#{null}}")
 	private Integer tokentime;
@@ -131,7 +132,6 @@ public class LoginController {
 				obj.put("realname",currentUser.getRealname());
 				obj.put("depid",currentUser.getDept()!=null?currentUser.getDept().getId():null);
 				obj.put("depname",currentUser.getDept()!=null?currentUser.getDept().getName():null);
-				obj.put("photourl", EQUIPMENT_MENT+currentUser.getPhotopath());//照片路径
 				List<Role> roles = currentUser.getRoles();
 				for(Role r: roles){
 					JSONObject o = new JSONObject();
@@ -190,6 +190,11 @@ public class LoginController {
 			}
 		}
 		return ResultObject.newJSONRows(array).toString();
+	}
+
+	@PostMapping("/loginPost")
+	public String loginPost(String username,String password){
+		return "";
 	}
 
 	@GetMapping(value = "login")

@@ -15,4 +15,8 @@ public interface FileuploadService {
 
     public void deleteById(Integer id);
 
+    public Fileupload getByMd5(String md5);
+
+    public Long getCountByMd5(String md5);
+
 }

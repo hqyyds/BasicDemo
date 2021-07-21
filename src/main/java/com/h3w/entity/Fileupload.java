@@ -25,6 +25,8 @@ public class Fileupload implements Serializable {
     private Integer userid;
     private Integer flag;
     private Integer topdf;
+    private String filemd5;
+
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -143,5 +145,13 @@ public class Fileupload implements Serializable {
 
     public void setFlag(Integer flag) {
         this.flag = flag;
+    }
+
+    public String getFilemd5() {
+        return filemd5;
+    }
+
+    public void setFilemd5(String filemd5) {
+        this.filemd5 = filemd5;
     }
 }

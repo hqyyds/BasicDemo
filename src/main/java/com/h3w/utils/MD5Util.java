@@ -1,5 +1,8 @@
 package com.h3w.utils;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -44,6 +47,16 @@ public class MD5Util {
 	    hexString.append(hex);
 	   }
 	   return hexString.toString();
+	}
+
+	public static String getFileMD5String(MultipartFile file) {
+		try {
+			String md5 = DigestUtils.md5Hex(file.getBytes());
+			return md5;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**

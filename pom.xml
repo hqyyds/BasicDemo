@@ -81,6 +81,12 @@
             <artifactId>springfox-swagger-ui</artifactId>
             <version>2.9.2</version>
         </dependency>
+        <!-- swagger2 增强UI ,拥有好看的界面, 和接口分组,排序等功能,如不引用可自行删除-->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>swagger-bootstrap-ui</artifactId>
+            <version>1.9.6</version>
+        </dependency>
         <!-- 定时器Quartz -->
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
@@ -224,13 +230,13 @@
             <version>2.5.0</version>
         </dependency>
         <!--添加本地的jacob.jar包-->
-        <dependency>
-            <groupId>com.jacob</groupId>
-            <artifactId>jacob</artifactId>
-            <version>1.19</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/src/main/resources/lib/jacob.jar</systemPath>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.jacob</groupId>-->
+<!--            <artifactId>jacob</artifactId>-->
+<!--            <version>1.19</version>-->
+<!--            <scope>system</scope>-->
+<!--            <systemPath>${basedir}/src/main/resources/lib/jacob.jar</systemPath>-->
+<!--        </dependency>-->
     </dependencies>
     <!-- 这里打成war包 若打jar，需将war改为jar -->
     <packaging>war</packaging>

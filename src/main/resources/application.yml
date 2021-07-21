@@ -1,5 +1,5 @@
 server:
-  port: 8083
+  port: 8084
   servlet:
     context-path: /
 spring:
@@ -46,7 +46,7 @@ spring:
       max-file-size: 10MB # maxFileSize 单个数据大小
       max-request-size: 100MB # maxRequestSize 是总数据大小
 system:
-  upload: upload/import/
+  upload-path: D:/upload/images/
 # JWT
 jwt:
   header: token

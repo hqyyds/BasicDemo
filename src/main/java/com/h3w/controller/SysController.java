@@ -10,6 +10,7 @@ import com.h3w.enums.FunEnum;
 import com.h3w.service.SysService;
 import com.h3w.service.UserService;
 import com.h3w.utils.*;
+import io.swagger.annotations.Api;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,6 +33,7 @@ import java.util.List;
  * @author hyyds
  * @date 2021/6/16
  */
+@Api(value = "系统管理接口", tags = "系统管理接口")
 @RestController
 @RequestMapping("/sys")
 public class SysController {
