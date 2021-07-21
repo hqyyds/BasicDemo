@@ -15,10 +15,4 @@ public interface FileuploadService {
 
     public void deleteById(Integer id);
 
-    List<Fileupload> getListBySdetailsid(Integer sdetailid);
-
-    List<Object> getIDListBySdetailsid(Integer sdetailid);
-
-    List<Fileupload> getListByMeetid(Integer meetid);
-
 }

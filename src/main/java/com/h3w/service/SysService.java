@@ -53,8 +53,6 @@ public interface SysService {
 
     List<Permission> findPermissionListByRoleId(String rcode);
 
-    List<Object> findPermissionIDListByRolecode(String rcode);
-
     List<RolePermission> selectByRolecode(String rolecode);
 
     RolePermission getRolePermissionById(Integer id);

@@ -40,25 +40,4 @@ public class FileuploadServiceImpl implements FileuploadService {
     public void deleteById(Integer id) {
         fileuploadDao.deleteById(id);
     }
-
-    @Override
-    public List<Fileupload> getListBySdetailsid(Integer sdetailid) {
-        String hql = "from Fileupload where sdetailid=?1";
-        return fileuploadDao.getListByHQL(hql,sdetailid);
-    }
-
-    @Override
-    public List<Object> getIDListBySdetailsid(Integer sdetailid) {
-
-        String sql = "select id from tri_fileupload where sdetailid=?1";
-        List<Object> data = fileuploadDao.getListBySQL(sql,sdetailid);
-        return data;
-    }
-
-    @Override
-    public List<Fileupload> getListByMeetid(Integer meetid) {
-        String hql = "from Fileupload where meetid=?1";
-        return fileuploadDao.getListByHQL(hql,meetid);
-    }
-
 }

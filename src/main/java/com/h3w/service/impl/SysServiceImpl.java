@@ -87,7 +87,7 @@ public class SysServiceImpl implements SysService {
 
     @Override
     public String getDepartmentNameById(Integer deptid) {
-        Object o = departmentDao.getBySQL("select name from sys_department where id=?1", deptid);
+        Object o = departmentDao.getByHQL("select name from Department where id=?1", deptid);
         return o != null?o.toString():"";
     }
 
@@ -198,12 +198,6 @@ public class SysServiceImpl implements SysService {
     }
 
     @Override
-    public List<Object> findPermissionIDListByRolecode(String rcode) {
-        String sql = "SELECT rp.permissioncode FROM pro_role r INNER JOIN pro_role_permission rp ON r.`code`=rp.rolecode AND r.`code`=?1";
-        return rolePermissionDao.getListBySQL(sql,rcode);
-    }
-
-    @Override
     public List<RolePermission> selectByRolecode(String rolecode) {
         return rolePermissionDao.getListByHQL("from RolePermission where rolecode=?1",rolecode);
     }
@@ -264,7 +258,7 @@ public class SysServiceImpl implements SysService {
     }
 
     public String getPermissionMaxCode(String parentcode){
-        String sql = "select MAX(code) from ass_permission where 1=1";
+        String sql = "select MAX(code) from Permission where 1=1";
         List<Object> param = new ArrayList<>();
         if(StringUtil.isNotBlank(parentcode)){
             sql+= " and parentcode=?"+(param.size()+1);
@@ -272,7 +266,7 @@ public class SysServiceImpl implements SysService {
         }else {
             sql+= " and (parentcode is null or parentcode='')";
         }
-        Object o = permissionDao.getBySQL(sql,param.toArray());
+        Object o = permissionDao.getByHQL(sql,param.toArray());
         return o!=null?o.toString():"";
     }
 }

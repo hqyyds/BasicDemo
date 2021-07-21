@@ -34,9 +34,9 @@ public class StartupQuartzJob implements Job{
 
     @Override
     public void execute(JobExecutionContext arg0) throws JobExecutionException {
-        System.out.println("开始初始化："+System.currentTimeMillis());
+        System.out.println("初始化开始："+System.currentTimeMillis());
         initApiResource();
-        System.out.println("结束："+System.currentTimeMillis());
+        System.out.println("初始化结束："+System.currentTimeMillis());
     }
 
 

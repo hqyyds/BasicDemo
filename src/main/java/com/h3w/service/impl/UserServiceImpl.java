@@ -117,7 +117,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String getNameByUserid(Integer userid) {
-        Object o = userDao.getBySQL("select realname from sys_user where id=?1", userid);
+        Object o = userDao.getByHQL("select realname from User where id=?1", userid);
         return o != null?o.toString():"";
     }
 
