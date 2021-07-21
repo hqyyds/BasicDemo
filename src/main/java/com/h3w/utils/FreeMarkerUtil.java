@@ -17,7 +17,7 @@ import java.util.Set;
  * @date 2021/6/25
  */
 public class FreeMarkerUtil {
-    private static final String TEMPLATE_PATH = "src/main/resources/temp";
+    private static final String TEMPLATE_PATH = "src/main/resources/temp/src";
     private static final String DAO_PATH = "src/main/java/com/h3w/dao";
     private static final String DAOIMPL_PATH = "src/main/java/com/h3w/dao/impl";
 
