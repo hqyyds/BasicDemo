@@ -1,8 +1,11 @@
 package com.h3w.entity;
 
+import lombok.Data;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
+@Data
 @Table(name = "pro_role_permission")
 @Entity
 public class RolePermission implements Serializable {
@@ -17,27 +20,4 @@ public class RolePermission implements Serializable {
     @JoinColumn(name = "permissioncode")
     private Permission permission;
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public Permission getPermission() {
-        return permission;
-    }
-
-    public void setPermission(Permission permission) {
-        this.permission = permission;
-    }
 }

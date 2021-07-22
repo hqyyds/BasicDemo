@@ -1,8 +1,11 @@
 package com.h3w.entity;
 
+import lombok.Data;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
+@Data
 @Entity
 @Table(name = "pro_user_role", catalog = "")
 public class UserRole implements Serializable {
@@ -18,27 +21,4 @@ public class UserRole implements Serializable {
     @JoinColumn(name = "userid")
     private User user;
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
 }
