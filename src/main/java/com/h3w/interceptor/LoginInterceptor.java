@@ -25,6 +25,7 @@ import java.io.PrintWriter;
 
 /**
  * 登录拦截
+ *
  * @author hyyds
  * @date 2021/6/16
  */
@@ -41,13 +42,13 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     /**
      * 在DispatcherServlet之前执行
-     * */
+     */
     @Override
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response, Object handler) throws Exception {
 //        System.out.println("LoginInterceptor executed");
         String access_token = request.getParameter("access_token");
-        if(StringUtil.isNotBlank(access_token)){
+        if (StringUtil.isNotBlank(access_token)) {
 
             while (true) {
                 //oa登录token,获取用户信息
@@ -64,7 +65,7 @@ public class LoginInterceptor implements HandlerInterceptor {
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                     String token = jwtTokenUtil.generateToken(userDetails);
                     String res = JSONObject.toJSONString(ResultObject.success(token));
-                    renderToken(response,res);
+                    renderToken(response, res);
 
 //                    String result = httpGet(url);
 //                    System.out.println("查询oa用户返回结果：" + result);
@@ -118,7 +119,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     /**
      * 在controller执行之后的DispatcherServlet之后执行
-     * */
+     */
     @Override
     public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, ModelAndView modelAndView) throws Exception {
 
@@ -126,13 +127,13 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     /**
      * 在页面渲染完成返回给客户端之前执行
-     * */
+     */
     @Override
     public void afterCompletion(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, Exception e) throws Exception {
 
     }
 
-    private void appPrint(HttpServletResponse response,String result){
+    private void appPrint(HttpServletResponse response, String result) {
 //        response.reset();
         response.setContentType("text/json;charset=utf-8");
         response.setHeader("Pragma", "no-cache");

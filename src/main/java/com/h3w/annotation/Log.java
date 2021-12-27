@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * 日志注解
+ *
  * @author hyyds
  * @date 2021/6/16
  */
@@ -15,8 +16,12 @@ import java.lang.annotation.Target;
 public @interface Log {
 
     int optype() default 0;
+
     String action() default "";
+
     String dataid() default "";
+
     String tbname() default "";
+
     String content() default "";
 }

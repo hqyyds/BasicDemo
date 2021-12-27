@@ -9,6 +9,7 @@ import java.lang.annotation.Target;
 
 /**
  * 接口权限注解
+ *
  * @author hyyds
  * @date 2021/6/16
  */
@@ -16,9 +17,14 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PerResource {
     String url() default "";
+
     String name() default "";
+
     int type() default 1;
+
     FunEnum fun() default FunEnum.SELECT;
+
     String description() default "";
+
     String roles() default "";
 }

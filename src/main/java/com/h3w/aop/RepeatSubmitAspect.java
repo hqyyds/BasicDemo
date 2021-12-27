@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 重复提交AOP
+ *
  * @author hyyds
  * @date 2021/6/16
  */
@@ -60,15 +61,15 @@ public class RepeatSubmitAspect {
     public Object around(ProceedingJoinPoint pjp, NoRepeatSubmit noRepeatSubmit) throws Throwable {
         // 此处可以用token或者JSessionId
         String token = request.getHeader("token");
-        String path = request.getServletPath()+"/";
+        String path = request.getServletPath() + "/";
 
-        if(StringUtil.isNotBlank(noRepeatSubmit.param())){
+        if (StringUtil.isNotBlank(noRepeatSubmit.param())) {
             path += generateKeyBySpEL(noRepeatSubmit.param(), pjp);
         }
         String key = getKey(token, path);
         if (StringUtil.isNotBlank(key)) {
             if (CACHES.getIfPresent(key) != null) {
-                throw new CustomException(500,"操作过于频繁，请稍后重试");
+                throw new CustomException(500, "操作过于频繁，请稍后重试");
             }
             // 如果是第一次请求,就将 key 当前对象压入缓存中
             CACHES.put(key, key);
@@ -99,6 +100,6 @@ public class RepeatSubmitAspect {
             context.setVariable(paramNames[i], args[i]);
         }
         Object o = expression.getValue(context);
-        return o!= null?o.toString():"";
+        return o != null ? o.toString() : "";
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,6 +22,7 @@ import java.util.List;
 
 /**
  * 自定义的资源（url）权限（角色）数据获取类
+ *
  * @author hyyds
  * @date 2021/6/16
  */
@@ -33,16 +35,16 @@ public class CustomFilterInvocationSecurityMetadataSource implements FilterInvoc
     /**
      * 每个资源（url）所需要的权限（角色）集合
      */
-    private static HashMap<String, Collection<ConfigAttribute>> map =null;
+    private static HashMap<String, Collection<ConfigAttribute>> map = null;
 
     /**
      * 获取每个资源（url）所需要的权限（角色）集合
      * 这里应该从数据库中动态查询，这里为了方便而直接创建
      */
-    private void getResourcePermission(){
+    private void getResourcePermission() {
         map = new HashMap<>();
         List<Resource> permissions = sysService.findResourceAll();
-        for(Resource per: permissions){
+        for (Resource per : permissions) {
             String url = per.getUrl();
 //            String method = per.getFun();
             String str = url;
@@ -101,11 +103,12 @@ public class CustomFilterInvocationSecurityMetadataSource implements FilterInvoc
 
     /**
      * 获取用户请求的某个具体的资源（url）所需要的权限（角色）集合
+     *
      * @param object 包含了用户请求的request信息
      */
     @Override
     public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
-        if(map ==null) {
+        if (map == null) {
             getResourcePermission();
         }
         HttpServletRequest request = ((FilterInvocation) object).getHttpRequest();
@@ -115,9 +118,9 @@ public class CustomFilterInvocationSecurityMetadataSource implements FilterInvoc
          * 如果全都不匹配，则表示用户请求的资源（url)不需要权限（角色）即可访问
          */
         Iterator<String> iter = map.keySet().iterator();
-        while(iter.hasNext()) {
+        while (iter.hasNext()) {
             String url = iter.next();
-            if(new AntPathRequestMatcher(url).matches(request)) {
+            if (new AntPathRequestMatcher(url).matches(request)) {
                 return map.get(url);
             }
         }

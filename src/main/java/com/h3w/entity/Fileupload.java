@@ -17,7 +17,7 @@ public class Fileupload implements Serializable {
     public static Integer TOPDF_ED = 1;
 
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
     private Integer dataid;

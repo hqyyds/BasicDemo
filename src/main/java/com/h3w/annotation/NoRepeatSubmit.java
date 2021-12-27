@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * 防止重复提交注解
+ *
  * @author hyyds
  * @date 2021/6/16
  */
@@ -15,11 +16,14 @@ import java.lang.annotation.Target;
 public @interface NoRepeatSubmit {
     /**
      * 锁的时间，默认为缓存的时间
+     *
      * @return
      */
     int seconds() default 5;
+
     /**
      * 参数
+     *
      * @return
      */
     String param() default "";

@@ -6,5 +6,5 @@ import com.h3w.entity.Dictionary;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class DictionaryDaoImpl extends BaseDao<Dictionary,Integer> implements DictionaryDao {
+public class DictionaryDaoImpl extends BaseDao<Dictionary, Integer> implements DictionaryDao {
 }

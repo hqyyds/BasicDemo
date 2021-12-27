@@ -18,6 +18,7 @@ import java.util.Properties;
 
 /**
  * Hibernate配置
+ *
  * @author hyyds
  * @date 2021/6/16
  */
@@ -28,15 +29,17 @@ import java.util.Properties;
 public class HibernateConfig {
     @Autowired
     private Environment environment;
+
     //session factory
     @Bean
     public LocalSessionFactoryBean sessionFactory() {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(dataSource());
-        sessionFactory.setPackagesToScan(new String[] { "com.h3w.entity" });
+        sessionFactory.setPackagesToScan(new String[]{"com.h3w.entity"});
 //        sessionFactory.setHibernateProperties(hibernateProperties());
         return sessionFactory;
     }
+
     // 数据源配置
     @Bean
     public DataSource dataSource() {
@@ -47,7 +50,8 @@ public class HibernateConfig {
         dataSource.setPassword(environment.getRequiredProperty("spring.datasource.password"));
         return dataSource;
     }
-//    //获取hibernate配置
+
+    //    //获取hibernate配置
 //    private Properties hibernateProperties() {
 //        Properties properties = new Properties();
 //        properties.put("hibernate.dialect", environment.getRequiredProperty("hibernate.dialect"));

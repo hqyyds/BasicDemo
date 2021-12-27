@@ -15,18 +15,19 @@ import java.util.Objects;
 public class Log implements Serializable {
     private static final long serialVersionUID = 7138058752708665657L;
 
-    public static Map<Integer,String> optypes;
+    public static Map<Integer, String> optypes;
+
     static {
         optypes = new HashMap<>();
-        optypes.put(1,"登录");
-        optypes.put(-1,"退出");
-        optypes.put(3,"上传文件");
-        optypes.put(4,"删除文件");
-        optypes.put(30,"系统管理");
-        optypes.put(31,"保存用户");
-        optypes.put(32,"分配角色");
-        optypes.put(33,"删除用户");
-        optypes.put(34,"重置密码");
+        optypes.put(1, "登录");
+        optypes.put(-1, "退出");
+        optypes.put(3, "上传文件");
+        optypes.put(4, "删除文件");
+        optypes.put(30, "系统管理");
+        optypes.put(31, "保存用户");
+        optypes.put(32, "分配角色");
+        optypes.put(33, "删除用户");
+        optypes.put(34, "重置密码");
     }
 
 
@@ -42,7 +43,7 @@ public class Log implements Serializable {
     public static final int OPTYPE_SYS_REPASSWORD = 34;
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private int id;
     private Integer userid;

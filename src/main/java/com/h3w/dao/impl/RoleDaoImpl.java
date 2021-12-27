@@ -6,5 +6,5 @@ import com.h3w.entity.Role;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class RoleDaoImpl extends BaseDao<Role,Integer> implements RoleDao {
+public class RoleDaoImpl extends BaseDao<Role, Integer> implements RoleDao {
 }

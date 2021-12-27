@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
  * Created by 60292 on 2018/7/23.
  */
 @Repository
-public class ResourceDaoImpl extends BaseDao<Resource,Integer> implements ResourceDao {
+public class ResourceDaoImpl extends BaseDao<Resource, Integer> implements ResourceDao {
 }

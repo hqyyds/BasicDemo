@@ -11,7 +11,7 @@ import java.io.Serializable;
 public class RoleResource implements Serializable {
     private static final long serialVersionUID = -8368611905056762329L;
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @ManyToOne
     @JoinColumn(name = "rolecode")

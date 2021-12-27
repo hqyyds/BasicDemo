@@ -12,8 +12,11 @@ public interface UserService {
 
     //注册登陆刷新
     Integer register(User userToAdd);
+
     String login(String username, String password);
+
     String refresh(String oldToken);
+
     User getUserByUsername(String username);
 
     String getNameByUserid(Integer userid);
@@ -22,7 +25,7 @@ public interface UserService {
 
     List<User> findUserByDep(Integer depid);
 
-    List<User> selectByDeptidAndStr(Integer deptid,String str);
+    List<User> selectByDeptidAndStr(Integer deptid, String str);
 
     void insertSelect(User User);
 
@@ -36,11 +39,11 @@ public interface UserService {
 
     List<UserRole> getUserRoleList(Integer uid);
 
-    User findByUsernameAndNotId(String username,Integer id);
+    User findByUsernameAndNotId(String username, Integer id);
 
-    void changeStatusById(Integer status,Integer id);
+    void changeStatusById(Integer status, Integer id);
 
-    Page<Log> queryLogs(Page<Log> page,Integer optype, Integer userid,String logtime, String name);
+    Page<Log> queryLogs(Page<Log> page, Integer optype, Integer userid, String logtime, String name);
 
     void saveLog(Log log);
 }

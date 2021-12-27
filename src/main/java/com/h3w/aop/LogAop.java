@@ -35,7 +35,8 @@ public class LogAop {
     UserService userService;
 
     @Pointcut("@annotation(com.h3w.annotation.Log)")
-    private void pointCut(){ }
+    private void pointCut() {
+    }
 
     @Before("pointCut()")
     public void before(JoinPoint joinPoint) {
@@ -62,18 +63,18 @@ public class LogAop {
         MethodSignature signature = ((MethodSignature) pjp.getSignature());
         //得到拦截的方法
         Method method = signature.getMethod();
-        if(method.isAnnotationPresent(Log.class)) {
+        if (method.isAnnotationPresent(Log.class)) {
             //获取方法上注解中表明的权限
             Log log = (Log) method.getAnnotation(Log.class);
             String dataid = "";
-            if(StringUtil.isNotBlank(log.dataid())){
+            if (StringUtil.isNotBlank(log.dataid())) {
                 dataid = generateKeyBySpEL(log.dataid(), pjp);
             }
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             HttpServletRequest request = attributes.getRequest();
             // 获取请求 IP
             String ip = request.getRemoteAddr();
-            saveLog(ip,log.optype(),log.action(),log.action(),dataid, log.tbname(),time);
+            saveLog(ip, log.optype(), log.action(), log.action(), dataid, log.tbname(), time);
         }
         return result;
     }
@@ -89,10 +90,10 @@ public class LogAop {
             context.setVariable(paramNames[i], args[i]);
         }
         Object o = expression.getValue(context);
-        return o!= null?o.toString():"";
+        return o != null ? o.toString() : "";
     }
 
-    public int saveLog(String ip,Integer op,String action,String content,String dataid,String tbname,long runtime){
+    public int saveLog(String ip, Integer op, String action, String content, String dataid, String tbname, long runtime) {
         //保存日志
         User user = loginController.getCurrentUser();
         com.h3w.entity.Log log = new com.h3w.entity.Log();

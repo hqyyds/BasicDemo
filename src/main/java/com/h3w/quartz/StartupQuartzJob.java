@@ -22,10 +22,10 @@ import java.util.Map;
 
 /**
  * 实现Job接口
- * @author yvan
  *
+ * @author yvan
  */
-public class StartupQuartzJob implements Job{
+public class StartupQuartzJob implements Job {
     @Autowired
     private ApplicationContext applicationContext;
     @Autowired
@@ -34,14 +34,14 @@ public class StartupQuartzJob implements Job{
 
     @Override
     public void execute(JobExecutionContext arg0) throws JobExecutionException {
-        System.out.println("初始化开始："+System.currentTimeMillis());
+        System.out.println("初始化开始：" + System.currentTimeMillis());
         initApiResource();
-        System.out.println("初始化结束："+System.currentTimeMillis());
+        System.out.println("初始化结束：" + System.currentTimeMillis());
     }
 
 
     //初始化接口权限
-    public void initApiResource(){
+    public void initApiResource() {
         System.out.println("初始化接口权限开始——————————————————————");
         // TODO 业务
         //获取使用RestController注解的所有controller层类
@@ -56,9 +56,9 @@ public class StartupQuartzJob implements Job{
 //            PerResource per = (PerResource) aClass.getAnnotation(PerResource.class);
 //            List<Method> methods = Arrays.asList(aClass.getMethods());//获取包含父级所有方法
             List<Method> declaredMethods = Arrays.asList(aClass.getDeclaredMethods());//获取当前类方法
-            for(int i=0; i<declaredMethods.size(); i++){
+            for (int i = 0; i < declaredMethods.size(); i++) {
                 //判断这个方法有没有这个注解
-                if( declaredMethods.get(i).isAnnotationPresent(PerResource.class)){
+                if (declaredMethods.get(i).isAnnotationPresent(PerResource.class)) {
                     PerResource per = declaredMethods.get(i).getAnnotation(PerResource.class);
                     System.out.println(JSON.toJSONString(per));
                     saveResource(per);
@@ -68,26 +68,26 @@ public class StartupQuartzJob implements Job{
         System.out.println("初始化接口权限结束——————————————————————");
     }
 
-    public void saveResource(PerResource per){
+    public void saveResource(PerResource per) {
         Resource res = sysService.getResourceByUrl(per.url());
         List<RoleResource> roleResources = new ArrayList<>();
         String roles = per.roles();
         String[] roleArr;
-        if(roles.equals("*")){
+        if (roles.equals("*")) {
             List<String> rclist = new ArrayList<>();
             List<Role> list = sysService.findRoleAll();
             for (Role role : list) {
                 rclist.add(role.getCode());
             }
             roleArr = rclist.toArray(new String[rclist.size()]);
-        }else {
+        } else {
             roleArr = roles.split(",");
         }
 
-        if(res == null){
+        if (res == null) {
             res = new Resource();
             res.setRoleResources(roleResources);
-        }else {
+        } else {
             roleResources = res.getRoleResources();
             roleResources.clear();
         }
@@ -97,7 +97,7 @@ public class StartupQuartzJob implements Job{
         res.setDescription(per.description());
         res.setFun(String.valueOf(per.fun()));
         res.setRoles(per.roles());
-        for(int i=0;i<roleArr.length;i++){
+        for (int i = 0; i < roleArr.length; i++) {
             RoleResource rr = new RoleResource();
             rr.setRole(sysService.getRoleByCode(roleArr[i]));
             rr.setResource(res);

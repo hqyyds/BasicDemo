@@ -20,6 +20,7 @@ import java.util.List;
 
 /**
  * Swagger配置
+ *
  * @author hyyds
  * @date 2021/6/16
  */
@@ -28,7 +29,7 @@ import java.util.List;
 public class SwaggerConfig {
 
     @Bean
-    public Docket createRestApi(){
+    public Docket createRestApi() {
         //可以添加多个header或参数
         ParameterBuilder aParameterBuilder = new ParameterBuilder();
         aParameterBuilder

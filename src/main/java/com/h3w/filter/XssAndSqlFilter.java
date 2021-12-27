@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 
 /**
  * 防止XSS 攻击和SQL注入攻击的Filter
+ *
  * @author hyyds
  * @date 2021/6/16
  */
@@ -35,8 +36,8 @@ public class XssAndSqlFilter implements Filter {
         }
         if ("POST".equalsIgnoreCase(method)) {//判断是否为post
             param = this.getBodyString(xssRequest.getReader());//获取参数
-            if(StringUtils.isNotBlank(param)){//等价于 str != null && str.length > 0 && str.trim().length > 0
-                if(xssRequest.checkXSSAndSql(param)){//进行参数审查
+            if (StringUtils.isNotBlank(param)) {//等价于 str != null && str.length > 0 && str.trim().length > 0
+                if (xssRequest.checkXSSAndSql(param)) {//进行参数审查
                     response.setCharacterEncoding("UTF-8");
                     response.setContentType("application/json;charset=UTF-8");
                     PrintWriter out = response.getWriter();
@@ -52,7 +53,7 @@ public class XssAndSqlFilter implements Filter {
          * 并不是所有参数都要检查，首先必须是一个get或者post，再去校验参数
          * 因为PUT方法在进行参数审查的时候没办法通过所以直接过滤掉
          */
-        if (xssRequest.checkParameter()&&(method.equals("POST") || method.equals("GET"))){
+        if (xssRequest.checkParameter() && (method.equals("POST") || method.equals("GET"))) {
             response.setCharacterEncoding("UTF-8");
             response.setContentType("application/json;charset=UTF-8");
             PrintWriter out = response.getWriter();

@@ -9,6 +9,7 @@ import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombi
 
 /**
  * 拼音工具类
+ *
  * @author hyyds
  * @date 2021/6/16
  */
@@ -17,7 +18,7 @@ public class PinYinUtil {
     // 将字母转换成数字
     public static int letterToNum(String input) {
         for (byte b : input.getBytes()) {
-            return b-96;
+            return b - 96;
         }
         return 0;
     }
@@ -50,8 +51,10 @@ public class PinYinUtil {
         }
         return output;
     }
+
     /**
      * 获取汉字串拼音首字母，英文字符不变
+     *
      * @param chinese 汉字串
      * @return 汉语拼音首字母
      */
@@ -77,8 +80,10 @@ public class PinYinUtil {
         }
         return pybf.toString().replaceAll("\\W", "").trim();
     }
+
     /**
      * 获取汉字串拼音，英文字符不变
+     *
      * @param chinese 汉字串
      * @return 汉语拼音
      */
@@ -102,7 +107,7 @@ public class PinYinUtil {
         return pybf.toString();
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         System.out.println(getFullSpell("2b张元行1a"));
     }
 }

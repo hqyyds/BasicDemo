@@ -7,6 +7,7 @@ import org.springframework.security.access.intercept.InterceptorStatusToken;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.stereotype.Component;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -17,6 +18,7 @@ import java.io.IOException;
 
 /**
  * 自定义的权限验证过滤器
+ *
  * @author hyyds
  * @date 2021/6/16
  */
@@ -38,7 +40,8 @@ public class CustomFilterSecurityInterceptor extends AbstractSecurityInterceptor
     }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {}
+    public void init(FilterConfig filterConfig) throws ServletException {
+    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -55,7 +58,8 @@ public class CustomFilterSecurityInterceptor extends AbstractSecurityInterceptor
     }
 
     @Override
-    public void destroy() {}
+    public void destroy() {
+    }
 
     @Override
     public Class<?> getSecureObjectClass() {

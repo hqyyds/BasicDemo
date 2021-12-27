@@ -24,11 +24,12 @@ import org.springframework.web.filter.CorsFilter;
 
 /**
  * Spring Security 配置类
+ *
+ * @author hyyds
  * @EnableGlobalMethodSecurity 开启注解的权限控制，默认是关闭的。
  * prePostEnabled：使用表达式实现方法级别的控制，如：@PreAuthorize("hasRole('ADMIN')")
  * securedEnabled: 开启 @Secured 注解过滤权限，如：@Secured("ROLE_ADMIN")
  * jsr250Enabled: 开启 @RolesAllowed 注解过滤权限，如：@RolesAllowed("ROLE_ADMIN")
- * @author hyyds
  * @date 2021/6/16
  */
 @Configuration
@@ -57,8 +58,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
+
     /**
      * 从容器中取出 AuthenticationManagerBuilder，执行方法里面的逻辑之后，放回容器
+     *
      * @param authenticationManagerBuilder
      * @throws Exception
      */
@@ -73,9 +76,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     /**
      * 使用BCrypt进行密码的hash，装载BCrypt密码编码器，在自定义的authenticationProvider中引用
      * 手动在拦截器中配置注册一个单例的bean对象，避免每次都重新生成
-      */
+     */
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -102,7 +105,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/doc/docRankList/export",
                         "/sys/initUserRole",
                         "/test/**",
-                        "/swagger-ui.html","/v2/**","/swagger-resources/**"
+                        "/swagger-ui.html", "/v2/**", "/swagger-resources/**"
                 ).permitAll()
                 // 对于获取token的rest api要允许匿名访问
                 .antMatchers("/auth/**").permitAll()
@@ -127,7 +130,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public CorsFilter corsFilter(){
+    public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource configurationSource = new UrlBasedCorsConfigurationSource();
         CorsConfiguration cors = new CorsConfiguration();
         cors.setAllowCredentials(true);

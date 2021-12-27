@@ -22,6 +22,7 @@ import java.io.IOException;
 
 /**
  * Jwt过滤器
+ *
  * @author hyyds
  * @date 2021/6/16
  */
@@ -40,14 +41,14 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         String token = request.getHeader("token");
         if (!StringUtils.isEmpty(token)) {
             String username = jwtTokenUtil.getUsernameFromToken(token);
-            if(username == null){
+            if (username == null) {
                 String res = ResultObject.error("令牌错误或失效").toString();
-                print(response,res);
+                print(response, res);
             }
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null){
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 //验证token是否过期
-                if (jwtTokenUtil.validateToken(token, userDetails)){
+                if (jwtTokenUtil.validateToken(token, userDetails)) {
                     // 将用户信息存入 authentication，方便后续校验
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -62,7 +63,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 //        System.out.println("JwtAuthenticationTokenFilter doFilter after");
     }
 
-    public void print(HttpServletResponse response, String res) throws IOException{
+    public void print(HttpServletResponse response, String res) throws IOException {
         response.setContentType("application/json;charset=UTF-8");
         ServletOutputStream out = response.getOutputStream();
         out.write(res.getBytes("UTF-8"));

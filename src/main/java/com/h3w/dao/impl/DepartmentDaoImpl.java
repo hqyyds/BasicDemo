@@ -6,5 +6,5 @@ import com.h3w.entity.Department;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class DepartmentDaoImpl extends BaseDao<Department,Integer> implements DepartmentDao {
+public class DepartmentDaoImpl extends BaseDao<Department, Integer> implements DepartmentDao {
 }

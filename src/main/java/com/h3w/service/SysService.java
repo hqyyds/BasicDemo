@@ -68,6 +68,8 @@ public interface SysService {
     List<Dictionary> getDictionaryListByType(String type);
 
     void saveResource(Resource resource);
+
     Resource getResourceByUrl(String url);
+
     List<Resource> findResourceAll();
 }

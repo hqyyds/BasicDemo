@@ -6,5 +6,5 @@ import com.h3w.entity.Permission;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class PermissionDaoImpl extends BaseDao<Permission,Integer> implements PermissionDao {
+public class PermissionDaoImpl extends BaseDao<Permission, Integer> implements PermissionDao {
 }

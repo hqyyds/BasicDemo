@@ -40,25 +40,25 @@ public class Office2PdfUtil {
      * @param fromFileInputStream:
      * @throws IOException
      */
-    public String file2Html(InputStream fromFileInputStream, String toFilePath,String type) throws IOException {
+    public String file2Html(InputStream fromFileInputStream, String toFilePath, String type) throws IOException {
         Date date = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         String timesuffix = sdf.format(date);
         String docFileName = null;
         String htmFileName = null;
-        if("doc".equals(type)){
+        if ("doc".equals(type)) {
             docFileName = "doc_" + timesuffix + ".doc";
             htmFileName = "doc_" + timesuffix + ".html";
-        }else if("docx".equals(type)){
+        } else if ("docx".equals(type)) {
             docFileName = "docx_" + timesuffix + ".docx";
             htmFileName = "docx_" + timesuffix + ".html";
-        }else if("xls".equals(type)){
+        } else if ("xls".equals(type)) {
             docFileName = "xls_" + timesuffix + ".xls";
             htmFileName = "xls_" + timesuffix + ".html";
-        }else if("ppt".equals(type)){
+        } else if ("ppt".equals(type)) {
             docFileName = "ppt_" + timesuffix + ".ppt";
             htmFileName = "ppt_" + timesuffix + ".html";
-        }else{
+        } else {
             return null;
         }
 
@@ -103,11 +103,12 @@ public class Office2PdfUtil {
 
     /**
      * 转成pdf
+     *
      * @param sourceFile
      * @param pdfFile
      * @return
      */
-    public static String file2pdf(File sourceFile, File pdfFile){
+    public static String file2pdf(File sourceFile, File pdfFile) {
         final ExecutorService exec = Executors.newFixedThreadPool(1);
 
         Callable<String> call = new Callable<String>() {
@@ -115,11 +116,11 @@ public class Office2PdfUtil {
                 //开始执行耗时操作
                 //Thread.sleep(1000 * 2);
                 String message = "";
-                log.debug("转换pdf文件：src="+sourceFile.getPath()+",pdf="+pdfFile.getPath());
-                if(sourceFile.exists()) {
-                    if(!pdfFile.exists()) {
+                log.debug("转换pdf文件：src=" + sourceFile.getPath() + ",pdf=" + pdfFile.getPath());
+                if (sourceFile.exists()) {
+                    if (!pdfFile.exists()) {
                         //OpenOfficeConnection connection = new SocketOpenOfficeConnection(8100);
-                        OpenOfficeConnection connection = new SocketOpenOfficeConnection("127.0.0.1",8100);
+                        OpenOfficeConnection connection = new SocketOpenOfficeConnection("127.0.0.1", 8100);
                         try {
                             connection.connect();
                             DocumentConverter converter = new OpenOfficeDocumentConverter(connection);
@@ -130,16 +131,16 @@ public class Office2PdfUtil {
                             message = "OK";
                         } catch (ConnectException e) {
                             //e.printStackTrace();
-                            log.error("OpenOffice服务未启动",e);
+                            log.error("OpenOffice服务未启动", e);
                             message = "OpenOffice服务未启动";
 
                         } catch (com.artofsolving.jodconverter.openoffice.connection.OpenOfficeException e) {
                             //e.printStackTrace();
-                            log.error("读取文件失败",e);
+                            log.error("读取文件失败", e);
                             message = "读取文件失败";
 
-                        } catch (Exception e){
-                            log.error("其他异常",e);
+                        } catch (Exception e) {
+                            log.error("其他异常", e);
                             message = "其他异常";
                         }
                     } else {

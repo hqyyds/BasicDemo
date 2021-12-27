@@ -15,13 +15,13 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL5Dialect
-#        ddl-auto: update #启动hibernate时会自动检查数据库，如果缺少表，则自动建表；如果表里缺少列，则自动添加列。
+        #        ddl-auto: update #启动hibernate时会自动检查数据库，如果缺少表，则自动建表；如果表里缺少列，则自动添加列。
         current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
   hibernate:
     ddl-auto: update
     naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
   transaction:
-      rollback-on-commit-failure: true #事务回滚hibernate.transaction.auto_close_session=true
+    rollback-on-commit-failure: true #事务回滚hibernate.transaction.auto_close_session=true
   #配置rabbitMq 服务器
   rabbitmq:
     host: 127.0.0.1

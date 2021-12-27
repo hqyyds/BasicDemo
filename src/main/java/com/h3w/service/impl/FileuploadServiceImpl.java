@@ -23,7 +23,7 @@ public class FileuploadServiceImpl implements FileuploadService {
 
     @Override
     public Fileupload getByFilename(String filename) {
-        return fileuploadDao.getByHQL("from Fileupload where filename=?1",filename);
+        return fileuploadDao.getByHQL("from Fileupload where filename=?1", filename);
     }
 
     @Override
@@ -43,13 +43,13 @@ public class FileuploadServiceImpl implements FileuploadService {
 
     @Override
     public Fileupload getByMd5(String md5) {
-        List<Fileupload> items = fileuploadDao.getListByHQL("from Fileupload where filemd5=?1",md5);
-        return items.size()>0?items.get(0):null;
+        List<Fileupload> items = fileuploadDao.getListByHQL("from Fileupload where filemd5=?1", md5);
+        return items.size() > 0 ? items.get(0) : null;
     }
 
     @Override
     public Long getCountByMd5(String md5) {
-        Long c = fileuploadDao.countByHql("select count(id) from Fileupload where filemd5=?1",md5);
+        Long c = fileuploadDao.countByHql("select count(id) from Fileupload where filemd5=?1", md5);
         return c;
     }
 }

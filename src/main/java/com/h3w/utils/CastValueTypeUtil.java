@@ -6,13 +6,12 @@ import java.util.Date;
 
 /**
  * 转换Object类型
- *
  */
 public class CastValueTypeUtil {
 
     public static Object parseValue(Class<?> parameterTypes, String value) {
 
-        if(value==null || value.trim().length()==0){
+        if (value == null || value.trim().length() == 0) {
             return null;
         }
         value = value.trim();
@@ -46,7 +45,7 @@ public class CastValueTypeUtil {
         try {
             value = value.replaceAll("　", "");
             return Byte.valueOf(value);
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new RuntimeException("parseByte but input illegal input=" + value, e);
         }
     }
@@ -66,7 +65,7 @@ public class CastValueTypeUtil {
         try {
             value = value.replaceAll("　", "");
             return Integer.valueOf(value);
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new RuntimeException("parseInt but input illegal input=" + value, e);
         }
     }
@@ -75,7 +74,7 @@ public class CastValueTypeUtil {
         try {
             value = value.replaceAll("　", "");
             return Short.valueOf(value);
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new RuntimeException("parseShort but input illegal input=" + value, e);
         }
     }
@@ -84,7 +83,7 @@ public class CastValueTypeUtil {
         try {
             value = value.replaceAll("　", "");
             return Long.valueOf(value);
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new RuntimeException("parseLong but input illegal input=" + value, e);
         }
     }
@@ -93,7 +92,7 @@ public class CastValueTypeUtil {
         try {
             value = value.replaceAll("　", "");
             return Float.valueOf(value);
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new RuntimeException("parseFloat but input illegal input=" + value, e);
         }
     }
@@ -102,7 +101,7 @@ public class CastValueTypeUtil {
         try {
             value = value.replaceAll("　", "");
             return Double.valueOf(value);
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new RuntimeException("parseDouble but input illegal input=" + value, e);
         }
     }
@@ -112,7 +111,7 @@ public class CastValueTypeUtil {
             String datePattern = "yyyy-MM-dd HH:mm:ss";
             SimpleDateFormat dateFormat = new SimpleDateFormat(datePattern);
             return dateFormat.parse(value);
-        } catch(ParseException e) {
+        } catch (ParseException e) {
             throw new RuntimeException("parseDate but input illegal input=" + value, e);
         }
     }

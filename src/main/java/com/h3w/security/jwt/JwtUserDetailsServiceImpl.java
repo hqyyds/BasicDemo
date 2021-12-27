@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 /**
  * 自定义的UserDetailesService接口，获取认证数据源，只需要将用户信息（用户名，密码，权限列表）包装成UserDetailes
+ *
  * @author hyyds
  * @date 2021/6/16
  */
@@ -28,6 +29,7 @@ public class JwtUserDetailsServiceImpl implements UserDetailsService {
 
     /**
      * 构建UserDetails对象，通过loadUserByUsername根据userName获取UserDetail对象 （可以在这里基于自身业务进行自定义的实现 如通过数据库，xml,缓存获取等）。
+     *
      * @param username
      * @return
      * @throws UsernameNotFoundException

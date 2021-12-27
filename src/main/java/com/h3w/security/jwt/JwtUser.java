@@ -6,7 +6,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
 /**
- *
  * @author hyyds
  * @date 2021/6/16
  */
@@ -67,6 +66,6 @@ public class JwtUser implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return status==STATUS_ENABLE?true:false;
+        return status == STATUS_ENABLE ? true : false;
     }
 }

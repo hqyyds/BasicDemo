@@ -6,5 +6,5 @@ import com.h3w.entity.Fileupload;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class FileuploadDaoImpl extends BaseDao<Fileupload,Integer> implements FileuploadDao {
+public class FileuploadDaoImpl extends BaseDao<Fileupload, Integer> implements FileuploadDao {
 }

@@ -63,8 +63,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public Integer register(User userToAdd) {
         final String username = userToAdd.getUsername();
-        User ouser = userDao.getByHQL("from User where username=?1",username);
-        if(ouser!=null) {
+        User ouser = userDao.getByHQL("from User where username=?1", username);
+        if (ouser != null) {
             return -1;
         }
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService {
 //        final String token = oldToken.substring(tokenHead.length());
         String username = jwtTokenUtil.getUsernameFromToken(token);
         JwtUser user = (JwtUser) userDetailsService.loadUserByUsername(username);
-        if (jwtTokenUtil.validateToken(token, user)){
+        if (jwtTokenUtil.validateToken(token, user)) {
             return jwtTokenUtil.refreshToken(token);
         }
         return null;
@@ -101,14 +101,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByUsername(String username) {
-        User user = userDao.getByHQL("from User where username=?1",username);
-        if(user==null){
+        User user = userDao.getByHQL("from User where username=?1", username);
+        if (user == null) {
             return user;
         }
         //查询用户角色
         List<UserRole> userRoles = user.getUserRoles();
         List<Role> roles = new ArrayList<>();
-        for(UserRole ur: userRoles){
+        for (UserRole ur : userRoles) {
             roles.add(ur.getRole());
         }
         user.setRoles(roles);
@@ -118,19 +118,19 @@ public class UserServiceImpl implements UserService {
     @Override
     public String getNameByUserid(Integer userid) {
         Object o = userDao.getByHQL("select realname from User where id=?1", userid);
-        return o != null?o.toString():"";
+        return o != null ? o.toString() : "";
     }
 
     @Override
-    public List<User> findAll(){
-        return userDao.getListByHQL("from User where status!=?1 order by id",User.STATUS_DELETED);
+    public List<User> findAll() {
+        return userDao.getListByHQL("from User where status!=?1 order by id", User.STATUS_DELETED);
     }
 
     @Override
     public List<User> findUserByDep(Integer depid) {
         String hql = "from User where status!=2";
-        if(depid != null){
-            hql += " and dept.id="+depid;
+        if (depid != null) {
+            hql += " and dept.id=" + depid;
         }
         hql += " order by seq";
         return userDao.getListByHQL(hql);
@@ -140,16 +140,16 @@ public class UserServiceImpl implements UserService {
     public List<User> selectByDeptidAndStr(Integer deptid, String str) {
         List<Object> param = new ArrayList<>();
         String hql = "from User where 1=1";
-        int i=1;
-        if(deptid!=null){
-            hql+= " and depid=?"+i++;
+        int i = 1;
+        if (deptid != null) {
+            hql += " and depid=?" + i++;
             param.add(deptid);
         }
-        if(StringUtil.isNotBlank(str)){
-            hql+= " and (username like '%"+str+"%' or realname like '%"+str+"%')";
+        if (StringUtil.isNotBlank(str)) {
+            hql += " and (username like '%" + str + "%' or realname like '%" + str + "%')";
         }
-        hql+= " order by createtime desc";
-        return userDao.getListByHQL(hql,param.toArray());
+        hql += " order by createtime desc";
+        return userDao.getListByHQL(hql, param.toArray());
     }
 
     @Override
@@ -164,7 +164,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getById(Integer id) {
-        return userDao.getByHQL("from User where id=?1",id);
+        return userDao.getByHQL("from User where id=?1", id);
     }
 
     @Override
@@ -174,51 +174,51 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUserRoleByUserid(Integer uid) {
-        userRoleDao.queryHql("Delete FROM UserRole where userid=?1",uid);
+        userRoleDao.queryHql("Delete FROM UserRole where userid=?1", uid);
     }
 
     @Override
     public List<UserRole> getUserRoleList(Integer uid) {
-        return userRoleDao.getListByHQL("from UserRole where userid=?1",uid);
+        return userRoleDao.getListByHQL("from UserRole where userid=?1", uid);
     }
 
     @Override
     public User findByUsernameAndNotId(String username, Integer id) {
-        return userDao.getByHQL("from User where username=?1 and id!=?2  and status!=-1", username,id);
+        return userDao.getByHQL("from User where username=?1 and id!=?2  and status!=-1", username, id);
     }
 
     @Override
-    public void changeStatusById(Integer status,Integer id) {
+    public void changeStatusById(Integer status, Integer id) {
         String hql = "update User set status=?1 where id=?2";
-        userDao.queryHql(hql, status,id);
+        userDao.queryHql(hql, status, id);
     }
 
     @Override
-    public Page<Log> queryLogs(Page<Log> page,Integer optype, Integer userid,String logtime, String name) {
+    public Page<Log> queryLogs(Page<Log> page, Integer optype, Integer userid, String logtime, String name) {
         String hql = "from CheckLog where 1=1";
         List<Object> param = new ArrayList<>();
-        if(optype!= null){
-            hql+= " and optype=?"+(param.size()+1);
+        if (optype != null) {
+            hql += " and optype=?" + (param.size() + 1);
             param.add(optype);
         }
-        if(userid!= null){
-            hql+= " and userid=?"+(param.size()+1);
+        if (userid != null) {
+            hql += " and userid=?" + (param.size() + 1);
             param.add(userid);
         }
-        if(StringUtil.isNotBlank(logtime)){
-            Date date = DateUtil.parseDate(logtime,"yyyy-MM-dd");
+        if (StringUtil.isNotBlank(logtime)) {
+            Date date = DateUtil.parseDate(logtime, "yyyy-MM-dd");
             Date sday = DateUtil.getFirstTimeOfDay(date);
             Date eday = DateUtil.getLastTimeOfDay(date);
-            hql+= " and logtime>=?"+(param.size()+1);
+            hql += " and logtime>=?" + (param.size() + 1);
             param.add(sday);
-            hql+= "  and logtime<=?"+(param.size()+1);
+            hql += "  and logtime<=?" + (param.size() + 1);
             param.add(eday);
         }
-        if(StringUtil.isNotBlank(name)){
-            hql+= " and (realname like '%"+name+"%' or action like '%"+name+"%')";
+        if (StringUtil.isNotBlank(name)) {
+            hql += " and (realname like '%" + name + "%' or action like '%" + name + "%')";
         }
         hql += " order by logtime desc";
-        return logDao.findPageByFetchedHql(hql, page,param.toArray());
+        return logDao.findPageByFetchedHql(hql, page, param.toArray());
     }
 
     @Override

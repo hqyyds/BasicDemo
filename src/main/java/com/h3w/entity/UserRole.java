@@ -12,7 +12,7 @@ public class UserRole implements Serializable {
 
     private static final long serialVersionUID = 8965249711785008896L;
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @ManyToOne
     @JoinColumn(name = "rolecode")

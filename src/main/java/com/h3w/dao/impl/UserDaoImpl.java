@@ -6,6 +6,6 @@ import com.h3w.entity.User;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class UserDaoImpl extends BaseDao<User,Integer> implements UserDao {
+public class UserDaoImpl extends BaseDao<User, Integer> implements UserDao {
 
 }

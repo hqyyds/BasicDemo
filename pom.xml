@@ -108,17 +108,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-logging</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
+        <!-- 默认日志框架Logback+SLF4J  -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-log4j</artifactId>
-            <version>1.3.8.RELEASE</version>
+            <artifactId>spring-boot-starter-logging</artifactId>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
@@ -193,36 +187,36 @@
             <artifactId>spring-boot-starter-freemarker</artifactId>
         </dependency>
         <!-- word转pdf依赖 jodconverter2.2.2的版本在maven上没有，需要本地添加jar到仓库-->
-                <dependency>
-                    <groupId>com.artofsolving</groupId>
-                    <artifactId>jodconverter</artifactId>
-                    <version>2.2.2</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.jodconverter</groupId>
-                    <artifactId>jodconverter-core</artifactId>
-                    <version>4.1.0</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.openoffice</groupId>
-                    <artifactId>juh</artifactId>
-                    <version>4.1.2</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.openoffice</groupId>
-                    <artifactId>jurt</artifactId>
-                    <version>4.1.2</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.openoffice</groupId>
-                    <artifactId>ridl</artifactId>
-                    <version>4.1.2</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.openoffice</groupId>
-                    <artifactId>unoil</artifactId>
-                    <version>4.1.2</version>
-                </dependency>
+        <dependency>
+            <groupId>com.artofsolving</groupId>
+            <artifactId>jodconverter</artifactId>
+            <version>2.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jodconverter</groupId>
+            <artifactId>jodconverter-core</artifactId>
+            <version>4.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openoffice</groupId>
+            <artifactId>juh</artifactId>
+            <version>4.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openoffice</groupId>
+            <artifactId>jurt</artifactId>
+            <version>4.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openoffice</groupId>
+            <artifactId>ridl</artifactId>
+            <version>4.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openoffice</groupId>
+            <artifactId>unoil</artifactId>
+            <version>4.1.2</version>
+        </dependency>
         <!--汉字拼音-->
         <dependency>
             <groupId>com.belerweb</groupId>
@@ -230,13 +224,13 @@
             <version>2.5.0</version>
         </dependency>
         <!--添加本地的jacob.jar包-->
-<!--        <dependency>-->
-<!--            <groupId>com.jacob</groupId>-->
-<!--            <artifactId>jacob</artifactId>-->
-<!--            <version>1.19</version>-->
-<!--            <scope>system</scope>-->
-<!--            <systemPath>${basedir}/src/main/resources/lib/jacob.jar</systemPath>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>com.jacob</groupId>-->
+        <!--            <artifactId>jacob</artifactId>-->
+        <!--            <version>1.19</version>-->
+        <!--            <scope>system</scope>-->
+        <!--            <systemPath>${basedir}/src/main/resources/lib/jacob.jar</systemPath>-->
+        <!--        </dependency>-->
     </dependencies>
     <!-- 这里打成war包 若打jar，需将war改为jar -->
     <packaging>war</packaging>

@@ -11,6 +11,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * 线程池配置 @EnableAsync 开启多线程 @Async异步发送
+ *
  * @author hyyds
  * @date 2021/6/16
  */

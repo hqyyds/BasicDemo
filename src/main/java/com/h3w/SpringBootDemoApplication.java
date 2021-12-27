@@ -22,14 +22,14 @@ import javax.servlet.MultipartConfigElement;
 @SpringBootApplication
 @EntityScan("com.h3w.entity")
 @EnableTransactionManagement // 开启注解事务管理，等同于xml配置文件中的 <tx:annotation-driven />
-@EnableAutoConfiguration(exclude=HibernateJpaAutoConfiguration.class)
+@EnableAutoConfiguration(exclude = HibernateJpaAutoConfiguration.class)
 @Configuration
 @EnableScheduling
 //@EnableJpaRepositories("com.h3w.dao") // JPA扫描该包路径下的Repositorie
 @ComponentScan({"com.h3w.*"}) //包名：扫描这个包下面的加了@Controller注解的类及其子包的加了@Controller注解的类，或者加了Service注解等其他组件注解的类
 public class SpringBootDemoApplication extends SpringBootServletInitializer {
     @Bean
-    public Object testBean(PlatformTransactionManager platformTransactionManager){
+    public Object testBean(PlatformTransactionManager platformTransactionManager) {
         System.out.println(">>>>>>>>>>" + platformTransactionManager.getClass().getName());
         return new Object();
     }

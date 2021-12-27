@@ -21,11 +21,12 @@ public class FileUtil {
 
     /**
      * 保存文件
+     *
      * @param file
      * @param path
      * @return
      */
-    public static boolean saveFile(MultipartFile file, String path){
+    public static boolean saveFile(MultipartFile file, String path) {
         File dir = new File(path);
         if (!dir.exists())
             dir.mkdirs();
@@ -34,7 +35,7 @@ public class FileUtil {
         File saveFile = new File(path + "/" + saveName);
         try {
             FileUtils.copyInputStreamToFile(file.getInputStream(), saveFile);
-            System.out.println("保存路径"+path);
+            System.out.println("保存路径" + path);
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -45,8 +46,7 @@ public class FileUtil {
     /**
      * 删除文件，可以是文件或文件夹
      *
-     * @param fileName
-     *            要删除的文件名
+     * @param fileName 要删除的文件名
      * @return 删除成功返回true，否则返回false
      */
     public static boolean delete(String fileName) {
@@ -65,8 +65,7 @@ public class FileUtil {
     /**
      * 删除单个文件
      *
-     * @param fileName
-     *            要删除的文件的文件名
+     * @param fileName 要删除的文件的文件名
      * @return 单个文件删除成功返回true，否则返回false
      */
     public static boolean deleteFile(String fileName) {
@@ -89,8 +88,7 @@ public class FileUtil {
     /**
      * 删除目录及目录下的文件
      *
-     * @param dir
-     *            要删除的目录的文件路径
+     * @param dir 要删除的目录的文件路径
      * @return 目录删除成功返回true，否则返回false
      */
     public static boolean deleteDirectory(String dir) {
@@ -133,8 +131,10 @@ public class FileUtil {
             return false;
         }
     }
+
     /**
      * FileChannels复制文件
+     *
      * @param source
      * @param dest
      * @throws IOException
@@ -150,16 +150,18 @@ public class FileUtil {
                 outputChannel.transferFrom(inputChannel, 0, inputChannel.size());
                 inputChannel.close();
                 outputChannel.close();
-                System.out.println("复制文件成功！"+dest.getName());
-            }else {
+                System.out.println("复制文件成功！" + dest.getName());
+            } else {
                 System.out.println("复制源文件不存在！");
             }
 
         } finally {
         }
     }
+
     /**
      * 把整个文件夹打包下载
+     *
      * @param dir
      * @param filePath
      * @param request
@@ -167,13 +169,13 @@ public class FileUtil {
      * @return
      * @throws Exception
      */
-    public static String downLoadDir(File dir, String filePath , HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public static String downLoadDir(File dir, String filePath, HttpServletRequest request, HttpServletResponse response) throws Exception {
         try {
             //这里的文件你可以自定义是.rar还是.zip
             File file = new File(filePath);
-            if (!file.exists()){
+            if (!file.exists()) {
                 file.createNewFile();
-            }else{
+            } else {
                 //如果压缩包已经存在则删除后重新打包压缩
                 file.delete();
             }
@@ -183,17 +185,18 @@ public class FileUtil {
             /**打包的方法用到ZipOutputStream这样一个输出流,所以这里把输出流转换一下*/
             ZipOutputStream zipOut = new ZipOutputStream(fous);
             /**这个方法接受的就是一个所要打包文件的集合，还有一个ZipOutputStream*/
-            zipDir(dir, "",zipOut);
+            zipDir(dir, "", zipOut);
             zipOut.close();
             fous.close();
             return "OK";
 
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             //return "文件下载出错" ;
         }
         return "文件下载出错";
     }
+
     /**
      * 写入压缩包
      */
@@ -246,6 +249,7 @@ public class FileUtil {
 
     /**
      * 文件导出保存
+     *
      * @param request
      * @param response
      * @param workbook
@@ -275,7 +279,7 @@ public class FileUtil {
                 response.setDateHeader("Expires", 0);
                 response.setContentType("application/msexcel"); // 设置返回的文件类型
                 response.setHeader("Content-disposition",
-                        "attachment;filename=\"" + new String(filename.getBytes("gb2312"), "ISO8859-1") + ext +"\"");
+                        "attachment;filename=\"" + new String(filename.getBytes("gb2312"), "ISO8859-1") + ext + "\"");
                 fileInputStream = new FileInputStream(toFile.getPath());
                 int i = fileInputStream.available(); // 得到文件大小
                 byte data[] = new byte[i];

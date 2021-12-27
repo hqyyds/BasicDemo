@@ -46,11 +46,11 @@ public class SysServiceImpl implements SysService {
     public List<Permission> getPermissionList(Integer type) {
         String hql = "from Permission where 1=1";
         List<Object> param = new ArrayList<>();
-        if(type!=null){
-            hql+= " and type=?"+(param.size()+1);
+        if (type != null) {
+            hql += " and type=?" + (param.size() + 1);
             param.add(type);
         }
-        return permissionDao.getListByHQL(hql,param.toArray());
+        return permissionDao.getListByHQL(hql, param.toArray());
 //        JSONArray array = new JSONArray();
 //        List<Object> list = permissionDao.getListBySQL(hql,type);
 //        for(Object o: list){
@@ -60,6 +60,7 @@ public class SysServiceImpl implements SysService {
 //            array.add(obj);
 //        }
     }
+
     @Override
     public void insertDepartment(Department department) {
         departmentDao.save(department);
@@ -67,12 +68,12 @@ public class SysServiceImpl implements SysService {
 
     @Override
     public Department getDepartmentById(Integer id) {
-        return departmentDao.getByHQL("from Department where id=?1",id);
+        return departmentDao.getByHQL("from Department where id=?1", id);
     }
 
     @Override
     public Department getDepartmentByName(String name) {
-        return departmentDao.getByHQL("from Department where name=?1",name);
+        return departmentDao.getByHQL("from Department where name=?1", name);
     }
 
     @Override
@@ -88,25 +89,25 @@ public class SysServiceImpl implements SysService {
     @Override
     public String getDepartmentNameById(Integer deptid) {
         Object o = departmentDao.getByHQL("select name from Department where id=?1", deptid);
-        return o != null?o.toString():"";
+        return o != null ? o.toString() : "";
     }
 
     @Override
     public List<Department> findAllDep() {
         Integer rootid = Department.ROOT_ID;
         String hql = "from Department where id!=?1 order by seq";
-        return departmentDao.getListByHQL(hql,rootid);
+        return departmentDao.getListByHQL(hql, rootid);
     }
 
     @Override
     public List<Department> getAllDepartmentByParentid(Integer pid) {
         String hql = "from Department where parentid=?1 and code is not null";
-        return departmentDao.getListByHQL(hql,pid);
+        return departmentDao.getListByHQL(hql, pid);
     }
 
     @Override
     public Permission getPermissionByCode(String code) {
-        return permissionDao.getByHQL("from Permission where code=?1",code);
+        return permissionDao.getByHQL("from Permission where code=?1", code);
     }
 
     @Override
@@ -116,23 +117,23 @@ public class SysServiceImpl implements SysService {
 
     @Override
     public ResultObject savePermission(Permission permission) {
-        if(StringUtil.isBlank(permission.getCode())){
+        if (StringUtil.isBlank(permission.getCode())) {
             String code = getPermissionMaxCode(permission.getParentcode());
             //此父级下没有数据的时候
-            if(StringUtil.isBlank(code) &&  StringUtil.isNotBlank(permission.getParentcode())){
+            if (StringUtil.isBlank(code) && StringUtil.isNotBlank(permission.getParentcode())) {
                 Permission pp = getPermissionByCode(permission.getParentcode());
-                code = pp.getCode()+"00";
+                code = pp.getCode() + "00";
             }
-            code = NumUtil.autoGenericCode(StringUtil.isBlank(code)?"00":code,1);
+            code = NumUtil.autoGenericCode(StringUtil.isBlank(code) ? "00" : code, 1);
             permission.setCode(code);
             permissionDao.saveOrUpdate(permission);
-            sysController.saveLog(request,1,"新增权限模块","",permission.getCode(),"ass_permission");
+            sysController.saveLog(request, 1, "新增权限模块", "", permission.getCode(), "ass_permission");
 
-        }else {
+        } else {
             Permission op = getPermissionByCode(permission.getCode());
-            BeanUtil.beanCopy(permission,op);
+            BeanUtil.beanCopy(permission, op);
             permissionDao.saveOrUpdate(op);
-            sysController.saveLog(request,1,"修改权限模块","",permission.getCode(),"ass_permission");
+            sysController.saveLog(request, 1, "修改权限模块", "", permission.getCode(), "ass_permission");
         }
         return ResultObject.newOk("保存成功");
     }
@@ -144,22 +145,22 @@ public class SysServiceImpl implements SysService {
 
     @Override
     public void deletePermissionByCode(String code) {
-        permissionDao.queryHql("delete from Permission where code=?1",code);
+        permissionDao.queryHql("delete from Permission where code=?1", code);
     }
 
     @Override
     public List<Permission> getPermissionByResourcecode(String code) {
-        return permissionDao.getListByHQL("from Permission where resourcecode=?1 order by fun",code);
+        return permissionDao.getListByHQL("from Permission where resourcecode=?1 order by fun", code);
     }
 
     @Override
     public List<Permission> selectPermissionByParentcode(String code) {
-        return permissionDao.getListByHQL("from Permission where parentcode=?1",code);
+        return permissionDao.getListByHQL("from Permission where parentcode=?1", code);
     }
 
     @Override
     public Role getRoleByCode(String code) {
-        return roleDao.getByHQL("from Role where code=?1",code);
+        return roleDao.getByHQL("from Role where code=?1", code);
     }
 
     @Override
@@ -179,19 +180,19 @@ public class SysServiceImpl implements SysService {
 
     @Override
     public void deleteRoleByCode(String code) {
-        roleDao.queryHql("update Role set delflag=1 where code=?1",code);
+        roleDao.queryHql("update Role set delflag=1 where code=?1", code);
     }
 
     @Override
     public List<Role> selectRoleByLevel(Integer level) {
-        return roleDao.getListByHQL("from Role where level=?1",level);
+        return roleDao.getListByHQL("from Role where level=?1", level);
     }
 
     @Override
     public List<Permission> findPermissionListByRoleId(String rcode) {
         List<Permission> permissions = new ArrayList<>();
-        List<RolePermission> rolePermissions = rolePermissionDao.getListByHQL("from RolePermission where rolecode=?1",rcode);
-        for(RolePermission rp: rolePermissions){
+        List<RolePermission> rolePermissions = rolePermissionDao.getListByHQL("from RolePermission where rolecode=?1", rcode);
+        for (RolePermission rp : rolePermissions) {
             permissions.add(rp.getPermission());
         }
         return permissions;
@@ -199,12 +200,12 @@ public class SysServiceImpl implements SysService {
 
     @Override
     public List<RolePermission> selectByRolecode(String rolecode) {
-        return rolePermissionDao.getListByHQL("from RolePermission where rolecode=?1",rolecode);
+        return rolePermissionDao.getListByHQL("from RolePermission where rolecode=?1", rolecode);
     }
 
     @Override
     public RolePermission getRolePermissionById(Integer id) {
-        return rolePermissionDao.getByHQL("from RolePermission where id=?1",id);
+        return rolePermissionDao.getByHQL("from RolePermission where id=?1", id);
     }
 
     @Override
@@ -225,17 +226,17 @@ public class SysServiceImpl implements SysService {
     @Override
     public void deleteRolePermissionByRolecode(String rolecode) {
         String hql = "delete from RolePermission where rolecode=?1";
-        rolePermissionDao.queryHql(hql,rolecode);
+        rolePermissionDao.queryHql(hql, rolecode);
     }
 
     @Override
     public List<Dictionary> getDictionaryListByType(String type) {
         String hql = "from Dictionary where dictype=?1 and type=?2";
-        Dictionary pd = dictionaryDao.getByHQL(hql,type, Dictionary.TYPE_TYPE);
+        Dictionary pd = dictionaryDao.getByHQL(hql, type, Dictionary.TYPE_TYPE);
         List<Dictionary> items = new ArrayList<>();
-        if(pd!=null){
+        if (pd != null) {
             hql = "from Dictionary where parentid=?1 and status!=?2 order by seq";
-            items = dictionaryDao.getListByHQL(hql,pd.getId(),Dictionary.STATUS_DEL);
+            items = dictionaryDao.getListByHQL(hql, pd.getId(), Dictionary.STATUS_DEL);
         }
         return items;
     }
@@ -248,7 +249,7 @@ public class SysServiceImpl implements SysService {
     @Override
     public Resource getResourceByUrl(String url) {
         String hql = "from Resource where url=?1";
-        return resourceDao.getByHQL(hql,url);
+        return resourceDao.getByHQL(hql, url);
     }
 
     @Override
@@ -257,16 +258,16 @@ public class SysServiceImpl implements SysService {
         return resourceDao.getListByHQL(hql);
     }
 
-    public String getPermissionMaxCode(String parentcode){
+    public String getPermissionMaxCode(String parentcode) {
         String sql = "select MAX(code) from Permission where 1=1";
         List<Object> param = new ArrayList<>();
-        if(StringUtil.isNotBlank(parentcode)){
-            sql+= " and parentcode=?"+(param.size()+1);
+        if (StringUtil.isNotBlank(parentcode)) {
+            sql += " and parentcode=?" + (param.size() + 1);
             param.add(parentcode);
-        }else {
-            sql+= " and (parentcode is null or parentcode='')";
+        } else {
+            sql += " and (parentcode is null or parentcode='')";
         }
-        Object o = permissionDao.getByHQL(sql,param.toArray());
-        return o!=null?o.toString():"";
+        Object o = permissionDao.getByHQL(sql, param.toArray());
+        return o != null ? o.toString() : "";
     }
 }

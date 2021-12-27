@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 /**
  * 防止XSS攻击和SQL注入包装类
+ *
  * @author hyyds
  * @date 2021/6/16
  */
@@ -32,6 +33,7 @@ public class XssAndSqlHttpServletRequestWrapper extends HttpServletRequestWrappe
     }
 
     // 重写几个HttpServletRequestWrapper中的方法
+
     /**
      * 获取所有参数名
      *
@@ -147,6 +149,7 @@ public class XssAndSqlHttpServletRequestWrapper extends HttpServletRequestWrappe
 
     /**
      * 审查参数的具体方法
+     *
      * @param value
      * @return
      */
@@ -233,6 +236,7 @@ public class XssAndSqlHttpServletRequestWrapper extends HttpServletRequestWrappe
 
     /**
      * 检查参数方法
+     *
      * @return
      */
     public final boolean checkParameter() {
@@ -245,7 +249,7 @@ public class XssAndSqlHttpServletRequestWrapper extends HttpServletRequestWrappe
                     return true;
                 }
             } else if ((submitValues instanceof String[])) {
-                for (String submitValue : (String[])submitValues){
+                for (String submitValue : (String[]) submitValues) {
                     if (checkXSSAndSql(submitValue)) {
                         return true;
                     }
@@ -268,7 +272,6 @@ public class XssAndSqlHttpServletRequestWrapper extends HttpServletRequestWrappe
     }
 
     /**
-     *
      * 防止xss跨脚本攻击（替换，根据实际情况调整）
      */
 
@@ -326,6 +329,7 @@ public class XssAndSqlHttpServletRequestWrapper extends HttpServletRequestWrappe
      */
     /**
      * 获取请求内容
+     *
      * @return
      * @throws IOException
      */
@@ -337,6 +341,7 @@ public class XssAndSqlHttpServletRequestWrapper extends HttpServletRequestWrappe
     /**
      * 返回请求内容字节流，多用于文件上传，
      * request.getReader()是对前者返回内容的封装，可以让调用者更方便字符内容的处理（不用自己先获取字节流再做字符流的转换操作）
+     *
      * @return
      * @throws IOException
      */

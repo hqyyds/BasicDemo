@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- *
  * @author hyyds
  * @date 2021/6/16
  */
@@ -34,6 +33,7 @@ public class TestController {
 
     /**
      * RabbitMQ发送消息1
+     *
      * @return
      */
     @GetMapping("/sendTopicMessage1")
@@ -51,6 +51,7 @@ public class TestController {
 
     /**
      * RabbitMQ发送消息2
+     *
      * @return
      */
     @GetMapping("/sendTopicMessage2")
@@ -65,8 +66,10 @@ public class TestController {
         rabbitTemplate.convertAndSend("topicExchange", "topic.woman", womanMap);
         return "ok";
     }
+
     /**
      * 保存数据
+     *
      * @param user
      * @return
      */
@@ -75,30 +78,31 @@ public class TestController {
     @ApiImplicitParam(name = "user", value = "新增用户数据")
     //说明是什么方法(可以理解为方法注释)
     @ApiOperation(value = "添加用户", notes = "添加用户")
-    public String saveUser(User user){
+    public String saveUser(User user) {
         userService.insertSelect(user);
         return "保存成功";
     }
 
     /**
      * 根据id查询用户
+     *
      * @param id
      * @return
      */
     @GetMapping(value = "findById")
     @ApiOperation(value = "根据id获取用户信息", notes = "根据id查询用户信息")
-    public User getUser(Integer id){
+    public User getUser(Integer id) {
         return userService.getById(id);
     }
 
     @DeleteMapping(value = "deleteById")
     @ApiOperation(value = "根据id删除数据", notes = "删除用户")
-    public String delete(Integer id){
+    public String delete(Integer id) {
         userService.deleteUserRoleByUserid(id);
         return "删除成功";
     }
 
-//    @Async
+    //    @Async
     @GetMapping(value = "testTh")
     public User listenerSignal(Integer id) {
         return userService.getById(id);

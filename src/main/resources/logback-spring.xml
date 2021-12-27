@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+    <!--指定property属性变量-->
+    <property name="log.path" value="logs"/>
+
+    <!-- %m输出的信息,%p日志级别,%t线程名,%d日期,%c类的全名,%i索引【从数字0开始递增】,,, -->
+    <!-- 日志输出格式 %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n -->
+    <!-- 控制台 appender-->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+<!--            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>-->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) --- [%15.15(%thread)] %cyan(%-40.40(%logger{40})) : %msg%n</pattern>
+            <!-- 控制台也要使用UTF-8，不要使用GBK，否则会中文乱码 -->
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+
+    <!-- RollingFileAppender：滚动记录文件，先将日志记录到指定文件，当符合某个条件时，将日志记录到其他文件 -->
+    <!-- 以下的大概意思是：1.先按日期存日志，日期变了，将前一天的日志文件名重命名为XXX%日期%索引，新的日志仍然是demo.log -->
+    <!--             2.如果日期没有发生变化，但是当前日志的文件大小超过1KB时，对当前日志进行分割 重命名-->
+    <appender name="alllog"  class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 当前日志输出路径、文件名 -->
+        <file>${log.path}/all.log</file>
+        <!--日志输出格式-->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <!--历史日志归档策略-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 历史日志： 归档文件名 -->
+            <fileNamePattern>${log.path}/%d{yyyy-MM, aux}/all.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <!--单个文件的最大大小-->
+            <maxFileSize>1MB</maxFileSize>
+            <!--日志文件保留天数-->
+            <maxHistory>15</maxHistory>
+        </rollingPolicy>
+
+
+    </appender>
+
+
+    <!-- 文件 滚动日志 (仅error)-->
+    <appender name="errorlog"  class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 当前日志输出路径、文件名 -->
+        <file>${log.path}/error.log</file>
+        <!--日志输出格式-->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+
+        <!--历史日志归档策略-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 历史日志： 归档文件名 -->
+            <fileNamePattern>${log.path}/%d{yyyy-MM, aux}/error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <!--单个文件的最大大小-->
+            <maxFileSize>64MB</maxFileSize>
+            <!--日志文件保留天数-->
+            <maxHistory>15</maxHistory>
+        </rollingPolicy>
+
+        <!-- 此日志文档只记录error级别的 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>error</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+
+    <!-- root 级别的配置 -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="alllog" />
+        <appender-ref ref="errorlog" />
+    </root>
+
+    <!-- 指定项目中某个包，当有日志操作行为时的日志记录级别 -->
+    <!-- com.h3w为根包，也就是只要是发生在这个根包下面的所有日志操作行为的权限都是INFO -->
+    <!-- 级别依次为【从高到低】：FATAL > ERROR > WARN > INFO > DEBUG > TRACE  -->
+    <!--可输出mapper层sql语句等-->
+    <logger name="com.h3w" level="INFO">
+<!--        <appender-ref ref="info_log" />-->
+    </logger>
+
+    <!--输出jdbc 事务相关信息-->
+    <logger name="org.springframework.jdbc" level="debug">
+    </logger>
+
+
+</configuration>

@@ -6,5 +6,5 @@ import com.h3w.entity.Log;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class LogDaoImpl extends BaseDao<Log,Integer> implements LogDao {
+public class LogDaoImpl extends BaseDao<Log, Integer> implements LogDao {
 }

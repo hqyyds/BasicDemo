@@ -14,11 +14,10 @@ import java.util.concurrent.Executors;
 public class Test {
 
 
-
     public static void main(String[] agrs) {
         long start = System.currentTimeMillis();
 
-        for(int i=0;i<10;i++){
+        for (int i = 0; i < 10; i++) {
 
             ExecutorService cachedThreadPool = Executors.newFixedThreadPool(3);
             ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
@@ -35,7 +34,7 @@ public class Test {
             });
         }
 
-        System.out.println("用时:" + String.valueOf(System.currentTimeMillis()-start));
+        System.out.println("用时:" + String.valueOf(System.currentTimeMillis() - start));
     }
 
 

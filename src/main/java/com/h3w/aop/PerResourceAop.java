@@ -21,6 +21,7 @@ import java.util.List;
 
 /**
  * 接口权限注解AOP
+ *
  * @author hyyds
  * @date 2021/6/16
  */
@@ -31,7 +32,8 @@ public class PerResourceAop {
     SysService sysService;
 
     @Pointcut("@annotation(com.h3w.annotation.PerResource)")
-    private void pointCut(){ }
+    private void pointCut() {
+    }
 
     @Before("pointCut()")
     public void before(JoinPoint joinPoint) {
@@ -43,7 +45,7 @@ public class PerResourceAop {
         MethodSignature signature = ((MethodSignature) pjp.getSignature());
         //得到拦截的方法
         Method method = signature.getMethod();
-        if(method.isAnnotationPresent(PerResource.class)) {
+        if (method.isAnnotationPresent(PerResource.class)) {
             //获取方法上注解中表明的权限
             PerResource per = (PerResource) method.getAnnotation(PerResource.class);
             saveResource(per);
@@ -51,25 +53,25 @@ public class PerResourceAop {
         return pjp.proceed();
     }
 
-    public void saveResource(PerResource per){
+    public void saveResource(PerResource per) {
         Resource res = sysService.getResourceByUrl(per.url());
         List<RoleResource> roleResources = new ArrayList<>();
         String roles = per.roles();
         String[] roleArr;
-        if(roles.equals("*")){
+        if (roles.equals("*")) {
             List<String> rclist = new ArrayList<>();
             List<Role> list = sysService.findRoleAll();
             for (Role role : list) {
                 rclist.add(role.getCode());
             }
             roleArr = rclist.toArray(new String[rclist.size()]);
-        }else {
+        } else {
             roleArr = roles.split(",");
         }
-        if(res == null){
+        if (res == null) {
             res = new Resource();
             res.setRoleResources(roleResources);
-        }else {
+        } else {
             roleResources = res.getRoleResources();
             roleResources.clear();
         }
@@ -79,7 +81,7 @@ public class PerResourceAop {
         res.setDescription(per.description());
         res.setFun(String.valueOf(per.fun()));
         res.setRoles(per.roles());
-        for(int i=0;i<roleArr.length;i++){
+        for (int i = 0; i < roleArr.length; i++) {
             RoleResource rr = new RoleResource();
             rr.setRole(sysService.getRoleByCode(roleArr[i]));
             rr.setResource(res);

@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 /**
  * 数据返回结果类
+ *
  * @author hyyds
  * @date 2021/6/16
  */
@@ -36,6 +37,7 @@ public class ResultObject {
 
     /**
      * 构造函数
+     *
      * @param statusCode
      * @param message
      */
@@ -85,6 +87,7 @@ public class ResultObject {
 
     /**
      * 成功
+     *
      * @param data
      * @return
      */
@@ -137,17 +140,17 @@ public class ResultObject {
         return new ResultObject(STATUS_CODE_FAILURE, message);
     }
 
-    public static JSONObject newJSONData(JSONObject data){
+    public static JSONObject newJSONData(JSONObject data) {
         JSONObject object = new JSONObject();
-        object.put("statusCode",STATUS_CODE_SUCCESS);
-        object.put("data",data);
+        object.put("statusCode", STATUS_CODE_SUCCESS);
+        object.put("data", data);
         return object;
     }
 
-    public static JSONObject newJSONRows(JSONArray rows){
+    public static JSONObject newJSONRows(JSONArray rows) {
         JSONObject object = new JSONObject();
-        object.put("statusCode",STATUS_CODE_SUCCESS);
-        object.put("data",rows);
+        object.put("statusCode", STATUS_CODE_SUCCESS);
+        object.put("data", rows);
         return object;
     }
 
@@ -155,7 +158,7 @@ public class ResultObject {
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append("{")
-                .append( "\"statusCode\":" + statusCode + ",")
+                .append("\"statusCode\":" + statusCode + ",")
                 .append("\"message\":\"" + message + "\",")
                 .append("\"data\":" + data + "")
                 .append("}");

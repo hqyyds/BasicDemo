@@ -19,6 +19,7 @@ public class BeanUtil {
         String[] result = new String[emptyNames.size()];
         return emptyNames.toArray(result);
     }
+
     public static Set<String> getNullPropertyNameSet(Object source) {
         final BeanWrapper src = new BeanWrapperImpl(source);
         java.beans.PropertyDescriptor[] pds = src.getPropertyDescriptors();

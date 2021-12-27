@@ -39,6 +39,7 @@ import java.util.*;
 
 /**
  * 文件上传接口
+ *
  * @author hyyds
  * @date 2021/6/16
  */
@@ -51,12 +52,14 @@ public class FileuploadController {
     @Autowired
     private LoginController loginController;
     public static FileuploadController fileuploadController;
+
     @PostConstruct
     public void init() {
         fileuploadController = this;
         fileuploadController.fileuploadService = this.fileuploadService;
         fileuploadController.loginController = this.loginController;
     }
+
     @Value("${system.upload-path}")
     public String fileBase;
     public static final String initFileBase = "WEB-INF/upload/";
@@ -87,11 +90,11 @@ public class FileuploadController {
 //        String dirPath = initFileBase + datedir;
 //        String uploadDir = checkDir(request, dirPath);
         String dirPath = fileBase + datedir;
-        String uploadDir = fileBase+datedir;
+        String uploadDir = fileBase + datedir;
         File f = new File(uploadDir);
         if (!f.exists())// 如果路径不存在则创建
             f.mkdirs();
-        System.out.println("返回的文件路径："+uploadDir);
+        System.out.println("返回的文件路径：" + uploadDir);
 
         // 创建一个通用的多部分解析器
         CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(
@@ -114,29 +117,29 @@ public class FileuploadController {
                     boolean haveold = false;
                     String filemd5 = MD5Util.getFileMD5String(file);
                     Fileupload uploadedfile = fileuploadController.fileuploadService.getByMd5(filemd5);
-                    if(uploadedfile != null){
+                    if (uploadedfile != null) {
                         String realPath = "";
-                        if(StringUtil.matchReg(uploadedfile.getFilepath(),"^WEB-INF/")){
-                            realPath = checkDirDown(request,uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
-                        }else {
+                        if (StringUtil.matchReg(uploadedfile.getFilepath(), "^WEB-INF/")) {
+                            realPath = checkDirDown(request, uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
+                        } else {
                             realPath = checkDirDown2(uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
                         }
-                        String pic_path=realPath+"/"+uploadedfile.getFilename()+uploadedfile.getFileExtname();//图片路径
+                        String pic_path = realPath + "/" + uploadedfile.getFilename() + uploadedfile.getFileExtname();//图片路径
                         File ofile = new File(pic_path);
                         if (ofile.exists()) {//如果路径存在
                             haveold = true;
                         }
                     }
                     //如果上传文件已存在，直接复制
-                    if(haveold){
+                    if (haveold) {
                         String realName = originalFileName.substring(0,
                                 originalFileName.lastIndexOf("."));
-                        BeanUtil.beanCopy(uploadedfile,fileUpload);
+                        BeanUtil.beanCopy(uploadedfile, fileUpload);
                         fileUpload.setRealname(realName);
                         fileUpload.setUploadtime(new Date());
                         fileUpload.setUserid(user.getId());
                         fileuploadController.fileuploadService.insertSelect(fileUpload);
-                    }else {
+                    } else {
                         // 如果名称不为“”,说明该文件存在，否则说明该文件不存在
                         if (originalFileName.trim() != "") {
                             String fileId = UUID.randomUUID().toString();
@@ -170,9 +173,9 @@ public class FileuploadController {
                         }
                     }
                     JSONObject fobj = new JSONObject();
-                    fobj.put("id",fileUpload.getId());
-                    fobj.put("url",getUrlPath(request,fileUpload.getId()));
-                    fobj.put("ext",fileUpload.getFileExtname());
+                    fobj.put("id", fileUpload.getId());
+                    fobj.put("url", getUrlPath(request, fileUpload.getId()));
+                    fobj.put("ext", fileUpload.getFileExtname());
                     return ResultObject.newJSONData(fobj).toString();
                 }
             }
@@ -184,6 +187,7 @@ public class FileuploadController {
 
     /**
      * 多图片上传
+     *
      * @param request
      * @return
      * @throws IllegalStateException
@@ -212,10 +216,10 @@ public class FileuploadController {
         //文件上传的绝对路径
         String dirPath = "";
         String uploadDir = "";
-        if(StringUtil.isNotBlank(fileBase)){
+        if (StringUtil.isNotBlank(fileBase)) {
             dirPath = fileBase + datedir;
             uploadDir = checkDir2(dirPath);
-        }else {
+        } else {
             dirPath = initFileBase + datedir;
             uploadDir = checkDir(request, dirPath);
         }
@@ -243,24 +247,24 @@ public class FileuploadController {
                     boolean haveold = false;
                     String filemd5 = MD5Util.getFileMD5String(file);
                     Fileupload uploadedfile = fileuploadController.fileuploadService.getByMd5(filemd5);
-                    if(uploadedfile != null){
+                    if (uploadedfile != null) {
                         String realPath = "";
-                        if(StringUtil.matchReg(uploadedfile.getFilepath(),"^WEB-INF/")){
-                            realPath = checkDirDown(request,uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
-                        }else {
+                        if (StringUtil.matchReg(uploadedfile.getFilepath(), "^WEB-INF/")) {
+                            realPath = checkDirDown(request, uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
+                        } else {
                             realPath = checkDirDown2(uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
                         }
-                        String pic_path=realPath+"/"+uploadedfile.getFilename()+uploadedfile.getFileExtname();//图片路径
+                        String pic_path = realPath + "/" + uploadedfile.getFilename() + uploadedfile.getFileExtname();//图片路径
                         File ofile = new File(pic_path);
                         if (ofile.exists()) {//如果路径存在
                             haveold = true;
                         }
                     }
                     //如果上传文件已存在，直接复制
-                    if(haveold){
+                    if (haveold) {
                         String realName = originalFileName.substring(0,
                                 originalFileName.lastIndexOf("."));
-                        copyFileupload(uploadedfile,realName,fileids,fileurls,files,request,user);
+                        copyFileupload(uploadedfile, realName, fileids, fileurls, files, request, user);
                         successnum++;
                     } else {
                         // 如果名称不为“”,说明该文件存在，否则说明该文件不存在
@@ -290,7 +294,7 @@ public class FileuploadController {
                                 mimeType = "application/octet-stream";
 
                             if (extName.equals(".pdf")) {
-                                pdf2Image(localFile, dirPath, 300, 10, fileids, fileurls,files, request, user);
+                                pdf2Image(localFile, dirPath, 300, 10, fileids, fileurls, files, request, user);
                             }
                             Fileupload fileUpload = new Fileupload();
                             fileUpload.setFiletype(mimeType.toString());
@@ -308,9 +312,9 @@ public class FileuploadController {
                                     fileids.add(fileUpload.getId());
                                     fileurls.add(getUrlPath(request, fileUpload.getId()));
                                     JSONObject fobj = new JSONObject();
-                                    fobj.put("id",fileUpload.getId());
-                                    fobj.put("url",getUrlPath(request,fileUpload.getId()));
-                                    fobj.put("ext",extName);
+                                    fobj.put("id", fileUpload.getId());
+                                    fobj.put("url", getUrlPath(request, fileUpload.getId()));
+                                    fobj.put("ext", extName);
                                     files.put(fobj);
                                 }
                                 successnum++;
@@ -321,20 +325,22 @@ public class FileuploadController {
                     }
                 }
             }
-            object.put("statusCode",200);
-            object.put("message","已成功上传"+successnum+"张图片，失败数"+failnum);
-            object.put("fileids",fileids);
-            object.put("fileurls",fileurls);
-            object.put("files",files);
+            object.put("statusCode", 200);
+            object.put("message", "已成功上传" + successnum + "张图片，失败数" + failnum);
+            object.put("fileids", fileids);
+            object.put("fileurls", fileurls);
+            object.put("files", files);
             return object.toString();
         } else {
-            object.put("statusCode",300);
-            object.put("message","上传出错，已成功上传"+successnum+"张图片，失败数"+failnum);
+            object.put("statusCode", 300);
+            object.put("message", "上传出错，已成功上传" + successnum + "张图片，失败数" + failnum);
             return object.toString();
         }
     }
+
     /**
      * 文件下载和查看
+     *
      * @param id
      * @param request
      * @param response
@@ -342,18 +348,18 @@ public class FileuploadController {
     @ApiOperation("文件下载和查看")
     @GetMapping(value = "/down/{id}")
     public void getFile(@PathVariable Integer id, HttpServletRequest request, HttpServletResponse response) {
-        Fileupload uploadedfile=fileuploadService.getById(id);
-        if(uploadedfile == null){
+        Fileupload uploadedfile = fileuploadService.getById(id);
+        if (uploadedfile == null) {
             System.out.println("未找到文件！");
         }
         String realPath = "";
-        if(StringUtil.matchReg(uploadedfile.getFilepath(),"^WEB-INF/")){
-            realPath = checkDirDown(request,uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
-        }else {
+        if (StringUtil.matchReg(uploadedfile.getFilepath(), "^WEB-INF/")) {
+            realPath = checkDirDown(request, uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
+        } else {
             realPath = checkDirDown2(uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
         }
 //        realPath = checkDirDown(request,uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
-        String pic_path=realPath+"/"+uploadedfile.getFilename()+uploadedfile.getFileExtname();//图片路径
+        String pic_path = realPath + "/" + uploadedfile.getFilename() + uploadedfile.getFileExtname();//图片路径
 //        System.out.println("返回的文件路径："+pic_path);
         File file = new File(pic_path);
         if (file.exists()) {//如果路径存在
@@ -363,7 +369,7 @@ public class FileuploadController {
                 response.setHeader("Cache-Control", "no-cache");
                 response.setDateHeader("Expires", 0);
                 response.setContentType(uploadedfile.getFiletype()); // 设置返回的文件类型
-                response.setHeader("content-disposition", "attachment;filename=" + URLEncoder.encode(uploadedfile.getRealname()+uploadedfile.getFileExtname(), "UTF-8"));
+                response.setHeader("content-disposition", "attachment;filename=" + URLEncoder.encode(uploadedfile.getRealname() + uploadedfile.getFileExtname(), "UTF-8"));
                 fileInputStream = new FileInputStream(pic_path);
                 int i = fileInputStream.available(); // 得到文件大小
                 byte data[] = new byte[i];
@@ -380,7 +386,7 @@ public class FileuploadController {
     }
 
 
-    public static void pdf2Image(File file, String dstImgFolder, int dpi,int flag,List<Integer> fileids,List<String> fileurls,JSONArray files,HttpServletRequest request,User user) {
+    public static void pdf2Image(File file, String dstImgFolder, int dpi, int flag, List<Integer> fileids, List<String> fileurls, JSONArray files, HttpServletRequest request, User user) {
         PDDocument pdDocument;
         try {
             String imgPDFPath = file.getParent();
@@ -401,10 +407,10 @@ public class FileuploadController {
                 StringBuffer imgFilePath = null;
                 for (int i = 0; i < pages; i++) {
                     String imageName = imagePDFName;
-                    String imgFilePathPrefix = imgPDFPath+File.separator + imagePDFName;
+                    String imgFilePathPrefix = imgPDFPath + File.separator + imagePDFName;
                     imgFilePath = new StringBuffer();
                     imgFilePath.append(imgFilePathPrefix);
-                    imageName+= "-"+String.valueOf(i + 1);
+                    imageName += "-" + String.valueOf(i + 1);
                     imgFilePath.append("-");
                     imgFilePath.append(String.valueOf(i + 1));
                     imgFilePath.append(".png");
@@ -424,11 +430,11 @@ public class FileuploadController {
                     fileUpload.setUserid(user.getId());
                     fileuploadController.fileuploadService.insertSelect(fileUpload);
                     fileids.add(fileUpload.getId());
-                    fileurls.add(getUrlPath(request,fileUpload.getId()));
+                    fileurls.add(getUrlPath(request, fileUpload.getId()));
                     JSONObject fobj = new JSONObject();
-                    fobj.put("id",fileUpload.getId());
-                    fobj.put("url",getUrlPath(request,fileUpload.getId()));
-                    fobj.put("ext",fileUpload.getFileExtname());
+                    fobj.put("id", fileUpload.getId());
+                    fobj.put("url", getUrlPath(request, fileUpload.getId()));
+                    fobj.put("ext", fileUpload.getFileExtname());
                     files.put(fobj);
                 }
                 System.out.println("成功");
@@ -442,31 +448,32 @@ public class FileuploadController {
         }
     }
 
-    public static void copyFileupload(Fileupload uploadedfile,String realName,List<Integer> fileids,List<String> fileurls,JSONArray files,HttpServletRequest request,User user){
+    public static void copyFileupload(Fileupload uploadedfile, String realName, List<Integer> fileids, List<String> fileurls, JSONArray files, HttpServletRequest request, User user) {
         Fileupload fileUpload = new Fileupload();
-        BeanUtil.beanCopy(uploadedfile,fileUpload);
+        BeanUtil.beanCopy(uploadedfile, fileUpload);
         fileUpload.setRealname(realName);
         fileUpload.setUploadtime(new Date());
         fileUpload.setUserid(user.getId());
         fileuploadController.fileuploadService.insertSelect(fileUpload);
         fileids.add(fileUpload.getId());
-        fileurls.add(getUrlPath(request,fileUpload.getId()));
+        fileurls.add(getUrlPath(request, fileUpload.getId()));
         JSONObject fobj = new JSONObject();
-        fobj.put("id",fileUpload.getId());
-        fobj.put("url",getUrlPath(request,fileUpload.getId()));
-        fobj.put("ext",fileUpload.getFileExtname());
+        fobj.put("id", fileUpload.getId());
+        fobj.put("url", getUrlPath(request, fileUpload.getId()));
+        fobj.put("ext", fileUpload.getFileExtname());
         files.put(fobj);
     }
 
     /**
      * 获取并保存EChart图片到本地.
-     * @param picInfo 图片信息
+     *
+     * @param picInfo   图片信息
      * @param imageName 图片名字
      */
     @ApiOperation("获取并保存EChart图片到本地")
-    @PostMapping(value="/saveChartImage")
+    @PostMapping(value = "/saveChartImage")
     @ResponseBody
-    private void saveChartImage(HttpServletRequest request,String picInfo, @RequestParam("imageName") String imageName) {
+    private void saveChartImage(HttpServletRequest request, String picInfo, @RequestParam("imageName") String imageName) {
         if (StringUtil.isBlank(picInfo)) {
             System.out.println("picInfo为空,未从前台获取到base64图片信息!");
             return;
@@ -475,20 +482,21 @@ public class FileuploadController {
 //      System.out.println(System.getProperty("evan.webapp"));//获取服务器根路径，成功，不过需要在web.xml中进行一些配置
         //获取服务器根路径到/static/images/的目录路径
         //文件上传的绝对路径
-        String dirPath = initFileBase+"chart/";
+        String dirPath = initFileBase + "chart/";
         String uploadDir = checkDir(request, dirPath);
-        System.out.println("返回的文件路径："+uploadDir);
+        System.out.println("返回的文件路径：" + uploadDir);
 //        String imagePath= ContextLoader.getCurrentWebApplicationContext().getServletContext().getRealPath("/static/images/")+imageName;
         // 传递过程中  "+" 变为了 " ".
         String newPicInfo = picInfo.replaceAll(" ", "+");
-        decodeBase64(newPicInfo, new File(uploadDir+imageName));
+        decodeBase64(newPicInfo, new File(uploadDir + imageName));
         //log.warn("从echarts中生成图片的的路径为:{}", picPath);
     }
 
     /**
      * 解析Base64位信息并输出到某个目录下面.
+     *
      * @param base64Info base64串
-     * @param picPath 生成的文件路径
+     * @param picPath    生成的文件路径
      * @return 文件地址
      */
     private File decodeBase64(String base64Info, File picPath) {
@@ -519,22 +527,22 @@ public class FileuploadController {
     @ApiOperation("删除上传文件")
     @GetMapping("/del/{fid}")
     @ResponseBody
-    public static ResultObject deleteFile(@PathVariable Integer fid,HttpServletRequest request){
-        Fileupload uploadedfile=fileuploadController.fileuploadService.getById(fid);
-        if(uploadedfile == null){
+    public static ResultObject deleteFile(@PathVariable Integer fid, HttpServletRequest request) {
+        Fileupload uploadedfile = fileuploadController.fileuploadService.getById(fid);
+        if (uploadedfile == null) {
             System.out.println("未找到文件！");
             return ResultObject.newError("未找到文件！");
         }
         String realPath = "";
-        if(StringUtil.matchReg(uploadedfile.getFilepath(),"^WEB-INF/")){
-            realPath = checkDirDown(request,uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
-        }else {
+        if (StringUtil.matchReg(uploadedfile.getFilepath(), "^WEB-INF/")) {
+            realPath = checkDirDown(request, uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
+        } else {
             realPath = checkDirDown2(uploadedfile.getFilepath());//获取文件上传后的保存绝对路径
         }
-        String pic_path=realPath+"/"+uploadedfile.getFilename()+uploadedfile.getFileExtname();//图片路径\
+        String pic_path = realPath + "/" + uploadedfile.getFilename() + uploadedfile.getFileExtname();//图片路径\
         //文件是单独使用就路径删除
         Long c = fileuploadController.fileuploadService.getCountByMd5(uploadedfile.getFilemd5());
-        if(c<2){
+        if (c < 2) {
             FileUtil.deleteFile(pic_path);
         }
         fileuploadController.fileuploadService.deleteById(fid);
@@ -556,16 +564,16 @@ public class FileuploadController {
     public static String checkDir(HttpServletRequest request, String dirPath) {
 //        System.out.println("路径："+dirPath);
 //        System.out.println("项目路径："+ request.getSession().getServletContext().getRealPath(""));
-        String realPath = request.getSession().getServletContext().getRealPath("")+dirPath; // 获取文件上传后的保存绝对路径
-        System.out.println("获取文件上传后的保存绝对路径："+realPath);
+        String realPath = request.getSession().getServletContext().getRealPath("") + dirPath; // 获取文件上传后的保存绝对路径
+        System.out.println("获取文件上传后的保存绝对路径：" + realPath);
         File file = new File(realPath);
         if (!file.exists())// 如果路径不存在则创建
             file.mkdirs();
         return realPath;
     }
 
-    public static String checkDir2(String uploadDir){
-        System.out.println("获取文件上传后的保存绝对路径："+uploadDir);
+    public static String checkDir2(String uploadDir) {
+        System.out.println("获取文件上传后的保存绝对路径：" + uploadDir);
         File f = new File(uploadDir);
         if (!f.exists())// 如果路径不存在则创建
             f.mkdirs();
@@ -575,7 +583,7 @@ public class FileuploadController {
 
     public static String checkDirDown(HttpServletRequest request, String dir) {
 //        System.out.println("路径："+dir);
-        String realPath = request.getSession().getServletContext().getRealPath("")+dir;// 获取文件上传后的保存绝对路径
+        String realPath = request.getSession().getServletContext().getRealPath("") + dir;// 获取文件上传后的保存绝对路径
 //        System.out.println("获取文件上传后的保存绝对路径："+realPath);
         File file = new File(realPath);
         if (!file.exists())// 如果路径不存在则创建
@@ -592,10 +600,10 @@ public class FileuploadController {
         return realPath;
     }
 
-    public static String getUrlPath(HttpServletRequest request,Integer fid){
+    public static String getUrlPath(HttpServletRequest request, Integer fid) {
         String path = request.getContextPath();
-        String urlpath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
-        urlpath+= "file/img/"+ fid;
+        String urlpath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + path + "/";
+        urlpath += "file/img/" + fid;
         return urlpath;
     }
 

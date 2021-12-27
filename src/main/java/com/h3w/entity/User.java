@@ -14,22 +14,23 @@ import java.util.Map;
 @Table(name = "sys_user")
 public class User implements Serializable {
 
-    public static final int STATUS_DEL_ED=-1;//已删除
-    public static final int STATUS_ENABLE=0;//正常使用
-    public static final int STATUS_DISABLE=1;//不可使用
-    public static final int STATUS_DELETED=2;//删除状态
+    public static final int STATUS_DEL_ED = -1;//已删除
+    public static final int STATUS_ENABLE = 0;//正常使用
+    public static final int STATUS_DISABLE = 1;//不可使用
+    public static final int STATUS_DELETED = 2;//删除状态
     private static final long serialVersionUID = 726596797441866380L;
 
-    public static Map<Integer,String> statusMap;
+    public static Map<Integer, String> statusMap;
+
     static {
         statusMap = new HashMap<>();
-        statusMap.put(-1,"已删除");
-        statusMap.put(0,"启用");
-        statusMap.put(1,"禁用");
+        statusMap.put(-1, "已删除");
+        statusMap.put(0, "启用");
+        statusMap.put(1, "禁用");
     }
 
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     //@Column(name = "id") 用来跟表的字段做个映射，如果名字相同就不需要写
     @Column(name = "id")
     private Integer id;
